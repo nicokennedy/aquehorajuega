@@ -1,0 +1,66 @@
+<%= link_to game_path(game, locale: I18n.locale), class: "game-card" do %>
+
+  <div class="game-card-top">
+    <span class="competition-name">
+      <%= game.competition&.name %>
+    </span>
+
+    <% if game.live? %>
+      <span class="live-pill">
+        EN VIVO <%= game.minute %>'
+      </span>
+    <% elsif game.finished? %>
+      <span class="finished-pill">
+        FINAL
+      </span>
+    <% end %>
+  </div>
+
+  <div class="game-row">
+    <div class="team-side">
+      <div class="team-name">
+        <% if game.home_team.national_team? %>
+          <%= game.home_team.flag %>
+        <% else %>
+          <span class="club-ball" style="<%= game.home_team.badge_style %>"></span>
+        <% end %>
+        <%= game.home_team.name %>
+      </div>
+    </div>
+
+    <div class="game-center">
+    <div
+        class="match-date"
+        data-local-date="<%= game.starts_at.iso8601 %>"
+      >
+        <%= game.starts_at.strftime("%a %d/%m") %>
+      </div>
+
+      <% if game.live? || game.finished? %>
+        <div class="score">
+          <%= game.home_score %>-<%= game.away_score %>
+        </div>
+      <% else %>
+        <div
+          class="match-time"
+          data-local-main-time="<%= game.starts_at.iso8601 %>"
+        >
+          <%= game.starts_at.strftime("%H:%M") %>
+        </div>
+      <% end %>
+
+    </div>
+
+    <div class="team-side right">
+      <div class="team-name">
+        <% if game.away_team.national_team? %>
+          <%= game.away_team.flag %>
+        <% else %>
+          <span class="club-ball" style="<%= game.away_team.badge_style %>"></span>
+        <% end %>
+        <%= game.away_team.name %>
+      </div>
+    </div>
+  </div>
+
+<% end %>

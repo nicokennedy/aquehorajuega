@@ -1,0 +1,107 @@
+<% content_for :title do %>
+  <%= "A qué hora juega #{@team.name} | Fixture, horarios y próximos partidos" %>
+<% end %>
+
+<% content_for :description do %>
+  <%= "Consultá cuándo juega #{@team.name}, próximos partidos, horarios en tu país, competencia, estadio y resultados actualizados." %>
+<% end %>
+
+<div class="page">
+  <%= link_to t("app.back"), root_path(locale: I18n.locale), class: "back-link" %>
+
+  <header class="hero team-hero">
+    <p class="eyebrow">Fixture</p>
+    <h1> ¿A qué hora juega <%= @team.name %>?</h1>
+    <p class="subtitle">
+      Próximos partidos de <%= @team.name %>, horario local automático, competencia y estadio.
+    </p>
+  </header>
+
+  <section class="section">
+    <h2>Próximos partidos de <%= @team.name %></h2>
+
+    <% if @upcoming_games.any? %>
+      <% @upcoming_games.each do |game| %>
+        <%= render "games/game_card", game: game %>
+      <% end %>
+    <% else %>
+      <p class="empty">No hay próximos partidos cargados.</p>
+    <% end %>
+  </section>
+
+  <% competitions = @upcoming_games.map(&:competition).compact.uniq %>
+
+  <% if competitions.any? %>
+    <section class="seo-links">
+      <h2><%= @team.name %> por competencia</h2>
+
+      <% competitions.each do |competition| %>
+        <%= link_to "#{@team.name} en #{competition.name}", competition_url_for(competition, q: @team.name) %>
+      <% end %>
+    </section>
+  <% end %>
+
+  <section class="seo-text">
+    <h2>Fixture de <%= @team.name %></h2>
+    <p>
+      En esta página podés consultar a qué hora juega <%= @team.name %>, ver sus próximos partidos
+      y revisar el horario adaptado automáticamente a tu país. También podés entrar a cada partido
+      para ver la hora en sede, el estadio y el tiempo restante para el inicio.
+    </p>
+  </section>
+
+  <section class="seo-links">
+    <h2>Más fixtures</h2>
+
+    <% Competition.order(:name).each do |competition| %>
+      <%= link_to competition.name, competition_url_for(competition) %>
+    <% end %>
+  </section>
+</div>
+
+<script>
+  function formatMainTime(date) {
+    return new Intl.DateTimeFormat(undefined, {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false
+    }).format(date);
+  }
+
+  function formatDate(date) {
+    return new Intl.DateTimeFormat(undefined, {
+      day: "2-digit",
+      month: "2-digit"
+    }).format(date);
+  }
+
+  function countdownText(date) {
+    const now = new Date();
+    const diff = date - now;
+
+    if (diff <= 0) return "Por empezar";
+
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (days > 0) return `Faltan ${days}d ${hours % 24}h`;
+    if (hours > 0) return `Faltan ${hours}h ${minutes % 60}m`;
+    return `Faltan ${minutes}m`;
+  }
+
+  document.querySelectorAll("[data-local-main-time]").forEach((el) => {
+    const date = new Date(el.dataset.localMainTime);
+    el.innerText = formatMainTime(date);
+  });
+
+  document.querySelectorAll("[data-local-date]").forEach((el) => {
+    const date = new Date(el.dataset.localDate);
+    el.innerText = formatDate(date);
+  });
+
+  document.querySelectorAll("[data-countdown]").forEach((el) => {
+    const date = new Date(el.dataset.countdown);
+    el.innerText = countdownText(date);
+  });
+</script>

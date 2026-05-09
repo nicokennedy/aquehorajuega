@@ -1,0 +1,203 @@
+<script type="application/ld+json">
+  <%= sports_event_schema(@game) %>
+</script>
+
+<% content_for :title do %>
+  <%= "A qué hora juega #{@game.home_team.name} vs #{@game.away_team.name} | #{@game.competition&.name}" %>
+<% end %>
+
+<% content_for :description do %>
+  <%= "#{@game.home_team.name} vs #{@game.away_team.name}: horario en tu país, hora en #{@game.city}, estadio #{@game.stadium} y countdown." %>
+<% end %>
+
+<script type="application/ld+json">
+  <%= sports_event_schema(@game) %>
+</script>
+
+<script type="application/ld+json">
+<%= raw({
+  "@context": "https://schema.org",
+  "@type": "SportsEvent",
+  "name": "#{@game.home_team.name} vs #{@game.away_team.name}",
+  "startDate": @game.starts_at.iso8601,
+  "eventStatus": "https://schema.org/EventScheduled",
+  "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
+  "sport": "Soccer",
+  "location": {
+    "@type": "Place",
+    "name": @game.stadium,
+    "address": {
+      "@type": "PostalAddress",
+      "addressLocality": @game.city
+    }
+  },
+  "competitor": [
+    {
+      "@type": "SportsTeam",
+      "name": @game.home_team.name
+    },
+    {
+      "@type": "SportsTeam",
+      "name": @game.away_team.name
+    }
+  ],
+  "organizer": {
+    "@type": "Organization",
+    "name": @game.competition&.name
+  },
+  "description": "Horario de #{@game.home_team.name} vs #{@game.away_team.name} en tu país."
+}.to_json) %>
+</script>
+
+<div class="page">
+  <%= link_to t("app.back"), root_path(locale: I18n.locale, competition: @game.competition&.slug, tab: "upcoming"), class: "back-link" %>
+
+  <section class="share-match-page">
+    <p class="eyebrow"><%= @game.competition&.name %></p>
+
+    <div class="share-card">
+      <div class="share-card-header">
+        <span><%= @game.stage %></span>
+        <span data-local-date="<%= @game.starts_at.iso8601 %>"><%= @game.starts_at.strftime("%d/%m") %></span>
+      </div>
+
+      <div class="share-teams">
+        <div class="share-team">
+          <span class="share-flag"><%= @game.home_team.flag %></span>
+          <strong><%= @game.home_team.name %></strong>
+        </div>
+
+        <div class="share-vs">
+          vs
+        </div>
+
+        <div class="share-team right">
+          <span class="share-flag"><%= @game.away_team.flag %></span>
+          <strong><%= @game.away_team.name %></strong>
+        </div>
+      </div>
+
+      <% if @game.live? %>
+
+  <div class="live-match-center">
+    <div class="live-badge">
+      EN VIVO · <%= @game.minute %>'
+    </div>
+
+    <div class="live-score">
+      <%= @game.home_score %>-<%= @game.away_score %>
+    </div>
+        </div>
+
+      <% elsif @game.finished? %>
+
+        <div class="live-match-center">
+          <div class="finished-badge">
+            FINAL
+          </div>
+
+          <div class="live-score">
+            <%= @game.home_score %>-<%= @game.away_score %>
+          </div>
+        </div>
+
+      <% else %>
+
+        <div class="share-time">
+          <strong data-local-main-time="<%= @game.starts_at.iso8601 %>">
+            <%= @game.starts_at.strftime("%H:%M") %>
+          </strong>
+
+          <span><%= t("app.your_time") %></span>
+        </div>
+
+        <div class="share-secondary-time">
+          <%= @game.starts_at.in_time_zone(@game.venue_time_zone).strftime("%H:%M") %>
+          en <%= @game.city %>
+        </div>
+
+        <div
+          class="share-countdown"
+          data-countdown="<%= @game.starts_at.iso8601 %>"
+        >
+          —
+        </div>
+
+      <% end %>
+    </div>
+
+
+    <div class="seo-links">
+      <h2>También puede interesarte</h2>
+
+      <%= link_to "Fixture completo de #{@game.competition.name}", competition_url_for(@game.competition) %>
+      <%= link_to "Próximos partidos de #{@game.home_team.name}", team_path(@game.home_team, locale: I18n.locale) %>
+      <%= link_to "Próximos partidos de #{@game.away_team.name}", team_path(@game.away_team, locale: I18n.locale) %>
+      <%= link_to "Partidos del #{@game.starts_at.to_date.strftime("%d/%m/%Y")}", date_games_path(@game.starts_at.to_date, locale: I18n.locale) %>
+    </div>
+  </section>
+</div>
+
+<script>
+  function formatMainTime(date) {
+    return new Intl.DateTimeFormat(undefined, {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false
+    }).format(date);
+  }
+
+  function formatDate(date) {
+    return new Intl.DateTimeFormat(undefined, {
+      weekday: "short",
+      day: "2-digit",
+      month: "2-digit"
+    }).format(date);
+  }
+
+  function countdownText(date) {
+    const now = new Date();
+    const diff = date - now;
+
+    if (diff <= 0) return "Por empezar";
+
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (days > 0) return `Faltan ${days}d ${hours % 24}h`;
+    if (hours > 0) return `Faltan ${hours}h ${minutes % 60}m`;
+    return `Faltan ${minutes}m`;
+  }
+
+  function shareMatch(button) {
+    const title = button.dataset.shareTitle;
+    const text = button.dataset.shareText;
+
+    if (navigator.share) {
+      navigator.share({
+        title: title,
+        text: text,
+        url: window.location.href
+      });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      button.innerText = "Link copiado";
+    }
+  }
+
+  document.querySelectorAll("[data-local-main-time]").forEach((el) => {
+    const date = new Date(el.dataset.localMainTime);
+    el.innerText = formatMainTime(date);
+  });
+
+  document.querySelectorAll("[data-local-date]").forEach((el) => {
+    const date = new Date(el.dataset.localDate);
+    el.innerText = formatDate(date);
+  });
+
+  document.querySelectorAll("[data-countdown]").forEach((el) => {
+    const date = new Date(el.dataset.countdown);
+    el.innerText = countdownText(date);
+  });
+</script>

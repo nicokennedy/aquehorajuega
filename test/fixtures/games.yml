@@ -1,0 +1,27 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  home_team_id: 1
+  away_team_id: 1
+  starts_at: 2026-05-09 08:16:21
+  status: MyString
+  home_score: 1
+  away_score: 1
+  minute: 1
+  stadium: MyString
+  city: MyString
+  stage: MyString
+  fifa_match_number: 1
+
+two:
+  home_team_id: 1
+  away_team_id: 1
+  starts_at: 2026-05-09 08:16:21
+  status: MyString
+  home_score: 1
+  away_score: 1
+  minute: 1
+  stadium: MyString
+  city: MyString
+  stage: MyString
+  fifa_match_number: 1

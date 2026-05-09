@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="<%= I18n.locale %>">
+  <head>
+    <title>
+      <%= content_for?(:title) ? yield(:title) : "¿A qué hora juega?" %>
+    </title>
+
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="description" content="<%= content_for?(:description) ? yield(:description) : "Partidos de hoy, fixture, horarios locales y resultados en vivo de fútbol. Mundial 2026, Libertadores, Sudamericana y más." %>">
+
+    <meta property="og:title" content="<%= content_for?(:title) ? yield(:title) : "¿A qué hora juega?" %>">
+    <meta property="og:description" content="<%= content_for?(:description) ? yield(:description) : "Partidos de hoy, fixture, horarios locales y resultados en vivo de fútbol. Mundial 2026, Libertadores, Sudamericana y más." %>">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="¿A qué hora juega?">
+    <meta property="og:url" content="<%= request.original_url %>">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="<%= content_for?(:title) ? yield(:title) : "¿A qué hora juega?" %>">
+    <meta name="twitter:description" content="<%= content_for?(:description) ? yield(:description) : "Partidos de hoy, fixture, horarios locales y resultados en vivo de fútbol. Mundial 2026, Libertadores, Sudamericana y más." %>">
+    <link rel="canonical" href="<%= request.base_url + request.path %>">
+
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+
+    <%= stylesheet_link_tag "application", "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body>
+    <%= yield %>
+  </body>
+</html>

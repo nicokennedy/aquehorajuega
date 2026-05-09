@@ -1,0 +1,191 @@
+<% content_for :title do %>
+  <%= @competition.present? ? "Fixture #{@competition.name} | Partidos y horarios" : "Partidos de hoy y próximos fixtures | ¿A qué hora juega?" %>
+<% end %>
+
+<% content_for :description do %>
+  <%= @competition.present? ? "Consultá el fixture de #{@competition.name}, próximos partidos, horarios locales y resultados en vivo." : "Partidos de hoy, próximos fixtures, horarios locales y resultados en vivo de fútbol. Mundial 2026, Libertadores, Sudamericana y más." %>
+<% end %>
+
+<% all_label = t("app.all", default: "Todos") %>
+<% current_name = @competition&.name || all_label %>
+
+<div class="page">
+  <nav class="competition-nav">
+    <%= link_to all_label,
+      root_path(locale: I18n.locale, q: params[:q], tab: params[:tab].presence || "upcoming"),
+      class: ("active" unless @competition.present?) %>
+
+    <% @competitions.each do |competition| %>
+      <%= link_to competition.name,
+        competition_path(competition.slug, locale: I18n.locale, q: params[:q], tab: params[:tab].presence || "upcoming"),
+        class: ("active" if @competition == competition) %>
+    <% end %>
+  </nav>
+
+  <header class="hero">
+    <div class="topbar">
+      <p class="eyebrow"><%= current_name %></p>
+
+      <div class="locale-switcher">
+        <% [:es, :en, :pt].each do |locale| %>
+          <%= link_to locale.to_s.upcase,
+            (@competition.present? ?
+              competition_path(@competition.slug, locale: locale, q: @query, tab: params[:tab].presence || "upcoming") :
+              root_path(locale: locale, q: @query, tab: params[:tab].presence || "upcoming")),
+            class: ("active" if I18n.locale == locale) %>
+        <% end %>
+      </div>
+    </div>
+
+    <h1><%= t("app.title") %></h1>
+    <p class="subtitle"><%= t("app.subtitle") %></p>
+
+    <%= form_with url: (@competition.present? ? competition_path(@competition.slug) : root_path),
+      method: :get,
+      local: true,
+      class: "search-form",
+      data: { controller: "search", search_target: "form" } do %>
+
+      <%= hidden_field_tag :locale, I18n.locale %>
+      <%= hidden_field_tag :tab, params[:tab].presence || "upcoming" %>
+
+      <div class="search-wrapper">
+        <%= text_field_tag :q, @query, placeholder: t("app.search_placeholder"), class: "search-input", data: { action: "input->search#submit" } %>
+
+        <% if @query.present? %>
+          <%= link_to "×",
+            (@competition.present? ?
+              competition_path(@competition.slug, locale: I18n.locale, tab: params[:tab].presence || "upcoming") :
+              root_path(locale: I18n.locale, tab: params[:tab].presence || "upcoming")),
+            class: "clear-search" %>
+        <% end %>
+      </div>
+    <% end %>
+  </header>
+
+  <% if @query.present? && @matching_teams.any? %>
+    <section class="team-results">
+      <p class="search-label"><%= t("app.teams_found", default: "Equipos encontrados") %></p>
+
+      <% @matching_teams.each do |team| %>
+        <%= link_to team_path(team, locale: I18n.locale), class: "team-result-card" do %>
+          <span><%= team.flag %></span>
+          <div>
+            <strong><%= team.name %></strong>
+            <small><%= t("app.view_full_fixture", default: "Ver fixture completo") %></small>
+          </div>
+        <% end %>
+      <% end %>
+    </section>
+  <% end %>
+
+  <% current_tab = params[:tab].presence || "upcoming" %>
+
+  <div class="tabs">
+    <%= link_to "#{t("app.upcoming")} #{@upcoming_games.count}",
+      (@competition.present? ?
+        competition_path(@competition.slug, locale: I18n.locale, q: @query, tab: "upcoming") :
+        root_path(locale: I18n.locale, q: @query, tab: "upcoming")),
+      class: "tab #{'active' if current_tab == 'upcoming'}" %>
+
+    <%= link_to "#{t("app.live")} #{@live_games.count}",
+      (@competition.present? ?
+        competition_path(@competition.slug, locale: I18n.locale, q: @query, tab: "live") :
+        root_path(locale: I18n.locale, q: @query, tab: "live")),
+      class: "tab #{'active' if current_tab == 'live'}" %>
+
+    <%= link_to "#{t("app.today")} #{@today_games.count}",
+      (@competition.present? ?
+        competition_path(@competition.slug, locale: I18n.locale, q: @query, tab: "today") :
+        root_path(locale: I18n.locale, q: @query, tab: "today")),
+      class: "tab #{'active' if current_tab == 'today'}" %>
+  </div>
+
+  <section class="section">
+    <% games =
+      case current_tab
+      when "live" then @live_games
+      when "today" then @today_games
+      else @upcoming_games
+      end
+    %>
+
+    <% if games.any? %>
+      <% games.each do |game| %>
+        <%= render "game_card", game: game %>
+      <% end %>
+    <% else %>
+      <p class="empty">
+        <% if current_tab == "live" %>
+          <%= t("app.no_live_games", default: "No hay partidos en vivo.") %>
+        <% elsif current_tab == "today" %>
+          <%= t("app.no_games_today") %>
+        <% else %>
+          <%= t("app.no_upcoming_games", default: "No hay próximos partidos.") %>
+        <% end %>
+      </p>
+    <% end %>
+  </section>
+
+  <section class="seo-text">
+    <h2>Fixture de <%= current_name %></h2>
+
+    <p>
+      Consultá todos los partidos de <%= current_name %> con horarios adaptados automáticamente a tu país.
+      Podés buscar por equipo, ciudad o estadio, ver cuándo juega cada equipo y entrar a cada partido para comparar
+      tu horario local con la hora en sede.
+    </p>
+
+    <p>
+      Esta página se actualiza para mostrar próximos partidos, partidos de hoy y resultados en vivo cuando estén disponibles.
+    </p>
+  </section>
+</div>
+
+<script>
+  function formatMainTime(date) {
+    return new Intl.DateTimeFormat(undefined, {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false
+    }).format(date);
+  }
+
+  function formatDate(date) {
+    return new Intl.DateTimeFormat(undefined, {
+      weekday: "short",
+      day: "2-digit",
+      month: "2-digit"
+    }).format(date);
+  }
+
+  function countdownText(date) {
+    const now = new Date();
+    const diff = date - now;
+
+    if (diff <= 0) return "Por empezar";
+
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (days > 0) return `Faltan ${days}d ${hours % 24}h`;
+    if (hours > 0) return `Faltan ${hours}h ${minutes % 60}m`;
+    return `Faltan ${minutes}m`;
+  }
+
+  document.querySelectorAll("[data-local-main-time]").forEach((el) => {
+    const date = new Date(el.dataset.localMainTime);
+    el.innerText = formatMainTime(date);
+  });
+
+  document.querySelectorAll("[data-local-date]").forEach((el) => {
+    const date = new Date(el.dataset.localDate);
+    el.innerText = formatDate(date);
+  });
+
+  document.querySelectorAll("[data-countdown]").forEach((el) => {
+    const date = new Date(el.dataset.countdown);
+    el.innerText = countdownText(date);
+  });
+</script>

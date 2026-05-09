@@ -1,0 +1,87 @@
+<% content_for :title do %>
+  <%= "Partidos del #{@date.strftime("%d/%m/%Y")} | Fixture y horarios" %>
+<% end %>
+
+<% content_for :description do %>
+  <%= "Todos los partidos del #{@date.strftime("%d/%m/%Y")} con horarios adaptados a tu país." %>
+<% end %>
+
+<div class="page">
+  <%= link_to t("app.back"), root_path(locale: I18n.locale), class: "back-link" %>
+
+  <header class="hero">
+    <p class="eyebrow">Partidos del día</p>
+
+    <h1>
+      <%= @date.strftime("%d/%m/%Y") %>
+    </h1>
+
+    <p class="subtitle">
+      Todos los partidos con horario local automático.
+    </p>
+  </header>
+
+  <section class="section">
+    <% if @games.any? %>
+      <% @games.each do |game| %>
+        <%= render "games/game_card", game: game %>
+      <% end %>
+    <% else %>
+      <p class="empty">No hay partidos para esta fecha.</p>
+    <% end %>
+  </section>
+  <section class="seo-links">
+		<h2>Ver por competencia</h2>
+
+		<% Competition.order(:name).each do |competition| %>
+			<%= link_to competition.name, competition_url_for(competition) %>
+		<% end %>
+</section>
+</div>
+
+<script>
+  function formatMainTime(date) {
+    return new Intl.DateTimeFormat(undefined, {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false
+    }).format(date);
+  }
+
+  function formatDate(date) {
+    return new Intl.DateTimeFormat(undefined, {
+      day: "2-digit",
+      month: "2-digit"
+    }).format(date);
+  }
+
+  function countdownText(date) {
+    const now = new Date();
+    const diff = date - now;
+
+    if (diff <= 0) return "Por empezar";
+
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(minutes / 60);
+    const days = Math.floor(hours / 24);
+
+    if (days > 0) return `Faltan ${days}d ${hours % 24}h`;
+    if (hours > 0) return `Faltan ${hours}h ${minutes % 60}m`;
+    return `Faltan ${minutes}m`;
+  }
+
+  document.querySelectorAll("[data-local-main-time]").forEach((el) => {
+    const date = new Date(el.dataset.localMainTime);
+    el.innerText = formatMainTime(date);
+  });
+
+  document.querySelectorAll("[data-local-date]").forEach((el) => {
+    const date = new Date(el.dataset.localDate);
+    el.innerText = formatDate(date);
+  });
+
+  document.querySelectorAll("[data-countdown]").forEach((el) => {
+    const date = new Date(el.dataset.countdown);
+    el.innerText = countdownText(date);
+  });
+</script>
