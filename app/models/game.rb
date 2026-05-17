@@ -37,6 +37,7 @@ class Game < ApplicationRecord
   before_validation :set_slug, on: [:create, :update]
 
   validates :slug, presence: true, uniqueness: true
+  validates :external_id, uniqueness: true, allow_nil: true
 
   def to_param
     slug
