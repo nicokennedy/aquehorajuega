@@ -64,14 +64,14 @@ module Promiedos
         end
 
     def parse_datetime(value)
-			date = DateTime.strptime(value, "%d-%m-%Y %H:%M")
+			parsed = DateTime.strptime(value, "%d-%m-%Y %H:%M")
 
 			Time.new(
-				date.year,
-				date.month,
-				date.day,
-				date.hour,
-				date.minute,
+				parsed.year,
+				parsed.month,
+				parsed.day,
+				parsed.hour,
+				parsed.minute,
 				0,
 				"-03:00"
 			)
