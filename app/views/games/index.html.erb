@@ -12,12 +12,12 @@
 <div class="page">
   <nav class="competition-nav">
     <%= link_to all_label,
-      root_path(locale: I18n.locale, q: params[:q], tab: params[:tab].presence || "upcoming"),
+      root_path(locale: I18n.locale, q: params[:q], tab: params[:tab].presence || "today"),
       class: ("active" unless @competition.present?) %>
 
     <% @competitions.each do |competition| %>
       <%= link_to competition.name,
-        competition_path(competition.slug, locale: I18n.locale, q: params[:q], tab: params[:tab].presence || "upcoming"),
+        competition_path(competition.slug, locale: I18n.locale, q: params[:q], tab: params[:tab].presence || "today"),
         class: ("active" if @competition == competition) %>
     <% end %>
   </nav>
@@ -30,8 +30,8 @@
         <% [:es, :en, :pt].each do |locale| %>
           <%= link_to locale.to_s.upcase,
             (@competition.present? ?
-              competition_path(@competition.slug, locale: locale, q: @query, tab: params[:tab].presence || "upcoming") :
-              root_path(locale: locale, q: @query, tab: params[:tab].presence || "upcoming")),
+              competition_path(@competition.slug, locale: locale, q: @query, tab: params[:tab].presence || "today") :
+              root_path(locale: locale, q: @query, tab: params[:tab].presence || "today")),
             class: ("active" if I18n.locale == locale) %>
         <% end %>
       </div>
@@ -47,7 +47,7 @@
       data: { controller: "search", search_target: "form" } do %>
 
       <%= hidden_field_tag :locale, I18n.locale %>
-      <%= hidden_field_tag :tab, params[:tab].presence || "upcoming" %>
+      <%= hidden_field_tag :tab, params[:tab].presence || "today" %>
 
       <div class="search-wrapper">
         <%= text_field_tag :q, @query, placeholder: t("app.search_placeholder"), class: "search-input", data: { action: "input->search#submit" } %>
@@ -55,8 +55,8 @@
         <% if @query.present? %>
           <%= link_to "×",
             (@competition.present? ?
-              competition_path(@competition.slug, locale: I18n.locale, tab: params[:tab].presence || "upcoming") :
-              root_path(locale: I18n.locale, tab: params[:tab].presence || "upcoming")),
+              competition_path(@competition.slug, locale: I18n.locale, tab: params[:tab].presence || "today") :
+              root_path(locale: I18n.locale, tab: params[:tab].presence || "today")),
             class: "clear-search" %>
         <% end %>
       </div>
@@ -79,36 +79,31 @@
     </section>
   <% end %>
 
-  <% current_tab = params[:tab].presence || "upcoming" %>
+  <% current_tab = params[:tab].presence || "today" %>
 
   <div class="tabs">
-    <%= link_to "#{t("app.upcoming")} #{@upcoming_games.count}",
-      (@competition.present? ?
-        competition_path(@competition.slug, locale: I18n.locale, q: @query, tab: "upcoming") :
-        root_path(locale: I18n.locale, q: @query, tab: "upcoming")),
-      class: "tab #{'active' if current_tab == 'upcoming'}" %>
-
-    <%= link_to "#{t("app.live")} #{@live_games.count}",
-      (@competition.present? ?
-        competition_path(@competition.slug, locale: I18n.locale, q: @query, tab: "live") :
-        root_path(locale: I18n.locale, q: @query, tab: "live")),
-      class: "tab #{'active' if current_tab == 'live'}" %>
-
     <%= link_to "#{t("app.today")} #{@today_games.count}",
       (@competition.present? ?
         competition_path(@competition.slug, locale: I18n.locale, q: @query, tab: "today") :
         root_path(locale: I18n.locale, q: @query, tab: "today")),
       class: "tab #{'active' if current_tab == 'today'}" %>
+
+    <%= link_to "#{t("app.upcoming")} #{@upcoming_games.count}",
+      (@competition.present? ?
+        competition_path(@competition.slug, locale: I18n.locale, q: @query, tab: "upcoming") :
+        root_path(locale: I18n.locale, q: @query, tab: "upcoming")),
+      class: "tab #{'active' if current_tab == 'upcoming'}" %>
   </div>
 
   <section class="section">
-    <% games =
-      case current_tab
-      when "live" then @live_games
-      when "today" then @today_games
-      else @upcoming_games
-      end
-    %>
+    <%
+      games =
+        if current_tab == "upcoming"
+          @upcoming_games
+        else
+          @today_games
+        end
+      %>
 
     <% if games.any? %>
       <% games.each do |game| %>
