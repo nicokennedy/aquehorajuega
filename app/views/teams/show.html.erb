@@ -18,6 +18,18 @@
   </header>
 
   <section class="section">
+    <h2>Partidos de hoy de <%= @team.name %></h2>
+
+    <% if @today_games.any? %>
+      <% @today_games.each do |game| %>
+        <%= render "games/game_card", game: game %>
+      <% end %>
+    <% else %>
+      <p class="empty">No hay partidos hoy.</p>
+    <% end %>
+  </section>
+
+  <section class="section">
     <h2>Próximos partidos de <%= @team.name %></h2>
 
     <% if @upcoming_games.any? %>
