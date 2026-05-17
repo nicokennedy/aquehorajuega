@@ -64,8 +64,11 @@ module Promiedos
         end
 
     def parse_datetime(value)
-      Time.zone.parse(value)
-    end
+			DateTime.strptime(
+				value,
+				"%d-%m-%Y %H:%M"
+			).in_time_zone("America/Argentina/Buenos_Aires")
+		end
 
     def map_status(enum)
       case enum
