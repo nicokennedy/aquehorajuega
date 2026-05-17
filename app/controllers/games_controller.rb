@@ -15,7 +15,7 @@ class GamesController < ApplicationController
       "world-cup-2026",
       "libertadores",
       "sudamericana",
-      "liga-argentina",
+      "liga-profesional",
       "champions-league"
     ]
 
@@ -52,7 +52,7 @@ class GamesController < ApplicationController
       "world-cup-2026",
       "libertadores",
       "sudamericana",
-      "liga-argentina",
+      "liga-profesional",
       "champions-league"
     ]
 
