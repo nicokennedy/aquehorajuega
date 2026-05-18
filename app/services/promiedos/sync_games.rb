@@ -15,6 +15,7 @@ module Promiedos
           sync_game(game_data, competition)
         end
       end
+      Promiedos::GroupScraper.new.sync_team_ids!
     end
 
     private
