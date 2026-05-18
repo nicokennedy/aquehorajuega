@@ -1,4 +1,4 @@
-SitemapGenerator::Sitemap.default_host = "https://aquehorajuega.com"
+SitemapGenerator::Sitemap.default_host = "https://aquehorajuega.pro"
 
 SitemapGenerator::Sitemap.create do
   add root_path(locale: :es), changefreq: "daily", priority: 1.0
