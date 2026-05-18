@@ -19,3 +19,21 @@ es:
     view_full_fixture: "Ver fixture completo"
     no_live_games: "No hay partidos en vivo."
     no_upcoming_games: "No hay próximos partidos."
+  date:
+    day_names:
+      - domingo
+      - lunes
+      - martes
+      - miércoles
+      - jueves
+      - viernes
+      - sábado
+
+    abbr_day_names:
+      - dom
+      - lun
+      - mar
+      - mié
+      - jue
+      - vie
+      - sáb

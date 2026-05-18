@@ -100,18 +100,33 @@
 
   <section class="section">
     <%
+      effective_tab =
+        if current_tab == "today" && @today_games.empty?
+          "upcoming"
+        else
+          current_tab
+        end
+
       games =
-        if current_tab == "upcoming"
+        if effective_tab == "upcoming"
           @upcoming_games
         else
           @today_games
         end
-      %>
+    %>
 
     <% if games.any? %>
-      <% games.each do |game| %>
+      <% games.group_by { |game| game.starts_at.in_time_zone("America/Argentina/Buenos_Aires").to_date }.each do |date, day_games| %>
+      <% if effective_tab == "upcoming" %>
+        <div class="day-separator">
+          <span><%= l(date, format: "%A %d/%m") %></span>
+        </div>
+      <% end %>
+
+      <% day_games.each do |game| %>
         <%= render "game_card", game: game %>
       <% end %>
+    <% end %>
     <% else %>
       <p class="empty">
         <% if current_tab == "live" %>

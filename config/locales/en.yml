@@ -19,3 +19,12 @@ en:
     view_full_fixture: "View full fixture"
     no_live_games: "No live matches."
     no_upcoming_games: "No upcoming matches."
+  date:
+    day_names:
+      - Sunday
+      - Monday
+      - Tuesday
+      - Wednesday
+      - Thursday
+      - Friday
+      - Saturday

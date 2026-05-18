@@ -19,3 +19,12 @@ pt:
     view_full_fixture: "Ver tabela completa"
     no_live_games: "Não há jogos ao vivo."
     no_upcoming_games: "Não há próximos jogos."
+  date:
+    day_names:
+      - domingo
+      - segunda-feira
+      - terça-feira
+      - quarta-feira
+      - quinta-feira
+      - sexta-feira
+      - sábado
