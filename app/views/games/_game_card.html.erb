@@ -1,5 +1,4 @@
 <%= link_to game_path(game, locale: I18n.locale), class: "game-card" do %>
-
   <div class="game-card-top">
     <span class="competition-name">
       <%= game.competition&.name %>
@@ -19,17 +18,24 @@
   <div class="game-row">
     <div class="team-side">
       <div class="team-name">
-        <% if game.home_team.national_team? %>
-          <%= game.home_team.flag %>
+        <% team = game.home_team %>
+
+        <% if team.promiedos_id.present? %>
+          <%= image_tag "https://api.promiedos.com.ar/images/team/#{team.promiedos_id}/1",
+            alt: team.name,
+            class: "team-logo" %>
+        <% elsif team.national_team? %>
+          <%= team.flag %>
         <% else %>
-          <span class="club-ball" style="<%= game.home_team.badge_style %>"></span>
+          <span class="club-ball" style="<%= team.badge_style %>"></span>
         <% end %>
-        <%= game.home_team.name %>
+
+        <%= team.name %>
       </div>
     </div>
 
     <div class="game-center">
-    <div
+      <div
         class="match-date"
         data-local-date="<%= game.starts_at.iso8601 %>"
       >
@@ -48,19 +54,24 @@
           <%= game.starts_at.strftime("%H:%M") %>
         </div>
       <% end %>
-
     </div>
 
     <div class="team-side right">
       <div class="team-name">
-        <% if game.away_team.national_team? %>
-          <%= game.away_team.flag %>
+        <% team = game.away_team %>
+
+        <% if team.promiedos_id.present? %>
+          <%= image_tag "https://api.promiedos.com.ar/images/team/#{team.promiedos_id}/1",
+            alt: team.name,
+            class: "team-logo" %>
+        <% elsif team.national_team? %>
+          <%= team.flag %>
         <% else %>
-          <span class="club-ball" style="<%= game.away_team.badge_style %>"></span>
+          <span class="club-ball" style="<%= team.badge_style %>"></span>
         <% end %>
-        <%= game.away_team.name %>
+
+        <%= team.name %>
       </div>
     </div>
   </div>
-
 <% end %>

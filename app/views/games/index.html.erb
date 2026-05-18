@@ -8,19 +8,22 @@
 
 <% all_label = t("app.all", default: "Todos") %>
 <% current_name = @competition&.name || all_label %>
+<% requested_tab = params[:tab].presence || "today" %>
+<% effective_tab = requested_tab == "today" && @today_games.empty? ? "upcoming" : requested_tab %>
 
 <div class="page">
   <nav class="competition-nav">
     <%= link_to root_path(locale: I18n.locale), class: "nav-brand" do %>
       <%= image_tag "logo_aqhj.svg", alt: "¿A qué hora juega?", class: "nav-brand-logo" %>
     <% end %>
+
     <%= link_to all_label,
-      root_path(locale: I18n.locale, q: params[:q], tab: params[:tab].presence || "today"),
+      root_path(locale: I18n.locale, q: params[:q], tab: "today"),
       class: ("active" unless @competition.present?) %>
 
     <% @competitions.each do |competition| %>
       <%= link_to competition.name,
-        competition_path(competition.slug, locale: I18n.locale, q: params[:q], tab: params[:tab].presence || "today"),
+        competition_path(competition.slug, locale: I18n.locale, q: params[:q], tab: "today"),
         class: ("active" if @competition == competition) %>
     <% end %>
   </nav>
@@ -33,8 +36,8 @@
         <% [:es, :en, :pt].each do |locale| %>
           <%= link_to locale.to_s.upcase,
             (@competition.present? ?
-              competition_path(@competition.slug, locale: locale, q: @query, tab: params[:tab].presence || "today") :
-              root_path(locale: locale, q: @query, tab: params[:tab].presence || "today")),
+              competition_path(@competition.slug, locale: locale, q: @query, tab: effective_tab) :
+              root_path(locale: locale, q: @query, tab: effective_tab)),
             class: ("active" if I18n.locale == locale) %>
         <% end %>
       </div>
@@ -50,7 +53,7 @@
       data: { controller: "search", search_target: "form" } do %>
 
       <%= hidden_field_tag :locale, I18n.locale %>
-      <%= hidden_field_tag :tab, params[:tab].presence || "today" %>
+      <%= hidden_field_tag :tab, effective_tab %>
 
       <div class="search-wrapper">
         <%= text_field_tag :q, @query, placeholder: t("app.search_placeholder"), class: "search-input", data: { action: "input->search#submit" } %>
@@ -58,8 +61,8 @@
         <% if @query.present? %>
           <%= link_to "×",
             (@competition.present? ?
-              competition_path(@competition.slug, locale: I18n.locale, tab: params[:tab].presence || "today") :
-              root_path(locale: I18n.locale, tab: params[:tab].presence || "today")),
+              competition_path(@competition.slug, locale: I18n.locale, tab: effective_tab) :
+              root_path(locale: I18n.locale, tab: effective_tab)),
             class: "clear-search" %>
         <% end %>
       </div>
@@ -82,63 +85,125 @@
     </section>
   <% end %>
 
-  <% current_tab = params[:tab].presence || "today" %>
-
   <div class="tabs">
     <%= link_to "#{t("app.today")} #{@today_games.count}",
       (@competition.present? ?
         competition_path(@competition.slug, locale: I18n.locale, q: @query, tab: "today") :
         root_path(locale: I18n.locale, q: @query, tab: "today")),
-      class: "tab #{'active' if current_tab == 'today'}" %>
+      class: "tab #{'active' if effective_tab == 'today'}" %>
 
     <%= link_to "#{t("app.upcoming")} #{@upcoming_games.count}",
       (@competition.present? ?
         competition_path(@competition.slug, locale: I18n.locale, q: @query, tab: "upcoming") :
         root_path(locale: I18n.locale, q: @query, tab: "upcoming")),
-      class: "tab #{'active' if current_tab == 'upcoming'}" %>
+      class: "tab #{'active' if effective_tab == 'upcoming'}" %>
+
+    <% if @groups.any? %>
+      <%= link_to "Grupos",
+        (@competition.present? ?
+          competition_path(@competition.slug, locale: I18n.locale, q: @query, tab: "groups") :
+          root_path(locale: I18n.locale, q: @query, tab: "groups")),
+        class: "tab #{'active' if effective_tab == 'groups'}" %>
+    <% end %>
   </div>
 
-  <section class="section">
-    <%
-      effective_tab =
-        if current_tab == "today" && @today_games.empty?
-          "upcoming"
-        else
-          current_tab
-        end
+  <% if effective_tab == "groups" %>
+    <section class="groups-section">
+      <% group_tables = @groups.flat_map { |group_block| group_block["tables"] } %>
 
-      games =
-        if effective_tab == "upcoming"
-          @upcoming_games
-        else
-          @today_games
-        end
-    %>
-
-    <% if games.any? %>
-      <% games.group_by { |game| game.starts_at.in_time_zone("America/Argentina/Buenos_Aires").to_date }.each do |date, day_games| %>
-      <% if effective_tab == "upcoming" %>
-        <div class="day-separator">
-          <span><%= l(date, format: "%A %d/%m") %></span>
+        <div class="group-anchor-nav">
+          <% group_tables.each do |group| %>
+            <a href="#<%= group["name"].parameterize %>"><%= group["name"] %></a>
+          <% end %>
         </div>
-      <% end %>
 
-      <% day_games.each do |game| %>
-        <%= render "game_card", game: game %>
-      <% end %>
-    <% end %>
-    <% else %>
-      <p class="empty">
-        <% if current_tab == "live" %>
-          <%= t("app.no_live_games", default: "No hay partidos en vivo.") %>
-        <% elsif current_tab == "today" %>
-          <%= t("app.no_games_today") %>
-        <% else %>
-          <%= t("app.no_upcoming_games", default: "No hay próximos partidos.") %>
+        <% group_tables.each do |group| %>
+          <% table = group["table"] %>
+
+          <div class="group-card" id="<%= group["name"].parameterize %>">
+            <h2><%= group["name"] %></h2>
+            <% destinations = table["destinations"] || [] %>
+
+            <% if destinations.any? %>
+              <div class="group-legend">
+                <% destinations.each do |destination| %>
+                  <span>
+                    <i style="background:<%= destination["color"] %>"></i>
+                    <%= destination["name"] %>
+                  </span>
+                <% end %>
+              </div>
+            <% end %>
+
+            <table class="group-table">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Equipo</th>
+                  <th>PTS</th>
+                  <th>J</th>
+                  <th>G</th>
+                  <th>E</th>
+                  <th>P</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                <% table["rows"].each do |row| %>
+                  <% values = row["values"].index_by { |v| v["key"] } %>
+
+                  <tr>
+                    <% team = row.dig("entity", "object") %>
+
+                    <td><%= row["num"] %></td>
+
+                    <td>
+                      <span class="group-team">
+                        <% if team["country_id"].present? %>
+                          <img
+                            src="https://api.promiedos.com.ar/images/country/<%= team["country_id"] %>/1"
+                            alt="<%= team["name"] %>"
+                          >
+                        <% end %>
+
+                        <strong><%= team["name"] %></strong>
+                      </span>
+                    </td>
+                    <td><%= values.dig("Points", "value") %></td>
+                    <td><%= values.dig("GamePlayed", "value") %></td>
+                    <td><%= values.dig("GamesWon", "value") %></td>
+                    <td><%= values.dig("GamesEven", "value") %></td>
+                    <td><%= values.dig("GamesLost", "value") %></td>
+                  </tr>
+                <% end %>
+              </tbody>
+            </table>
+          </div>
         <% end %>
-      </p>
-    <% end %>
-  </section>
+    </section>
+  <% else %>
+    <section class="section">
+      <% games = effective_tab == "upcoming" ? @upcoming_games : @today_games %>
+
+      <% if games.any? %>
+        <% games.group_by { |game| game.starts_at.in_time_zone("America/Argentina/Buenos_Aires").to_date }.each do |date, day_games| %>
+          <% if effective_tab == "upcoming" %>
+            <div class="day-separator">
+              <span><%= l(date, format: "%A %d/%m") %></span>
+            </div>
+          <% end %>
+
+          <% day_games.each do |game| %>
+            <%= render "game_card", game: game %>
+          <% end %>
+        <% end %>
+      <% else %>
+        <p class="empty">
+          <%= effective_tab == "today" ? t("app.no_games_today") : t("app.no_upcoming_games", default: "No hay próximos partidos.") %>
+        </p>
+      <% end %>
+    </section>
+  <% end %>
 
   <section class="seo-text">
     <h2>Fixture de <%= current_name %></h2>

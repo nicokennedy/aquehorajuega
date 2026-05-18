@@ -1013,3 +1013,137 @@ h1 {
   flex: 1;
   background: rgba(255, 255, 255, 0.12);
 }
+
+
+.groups-section {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.group-card {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 18px;
+  padding: 18px;
+}
+
+.group-card h2 {
+  margin-bottom: 16px;
+  font-size: 18px;
+}
+
+.group-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.group-table th,
+.group-table td {
+  padding: 10px 8px;
+  text-align: center;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+.group-table td:nth-child(2),
+.group-table th:nth-child(2) {
+  text-align: left;
+}
+
+
+
+@media (max-width: 640px) {
+  .group-table {
+    font-size: 13px;
+  }
+
+  .group-table th,
+  .group-table td {
+    padding: 8px 4px;
+  }
+}
+
+.group-anchor-nav {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  margin-bottom: 18px;
+  padding-bottom: 4px;
+}
+
+.group-anchor-nav a {
+  flex: 0 0 auto;
+  text-decoration: none;
+  color: #b7c8bf;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08);
+  padding: 9px 14px;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.group-anchor-nav a:hover {
+  color: #60a5fa;
+  border-color: rgba(96,165,250,0.35);
+}
+
+.group-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: -4px 0 14px;
+  color: #9fb4aa;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.group-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.group-legend i {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  display: inline-block;
+}
+
+.group-team {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.group-team img {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  object-fit: cover;
+}
+
+.team-logo {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
+
+.team-name {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.team-side.right .team-name {
+  justify-content: flex-end;
+}
+
+.team-logo {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  flex: 0 0 auto;
+}

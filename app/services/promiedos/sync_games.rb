@@ -20,13 +20,16 @@ module Promiedos
     private
 
     def sync_game(data, competition)
-        home_team = Team.find_or_create_by!(
-            name: data["teams"][0]["name"]
-        )
+        home_data = data["teams"][0]
+        away_data = data["teams"][1]
 
-        away_team = Team.find_or_create_by!(
-            name: data["teams"][1]["name"]
-        )
+        home_team = Team.find_or_initialize_by(name: home_data["name"])
+        home_team.promiedos_id = home_data["id"]
+        home_team.save!
+
+        away_team = Team.find_or_initialize_by(name: away_data["name"])
+        away_team.promiedos_id = away_data["id"]
+        away_team.save!
 
         starts_at = parse_datetime(data["start_time"])
 

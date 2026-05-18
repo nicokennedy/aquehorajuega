@@ -97,6 +97,11 @@ class GamesController < ApplicationController
       )
 
     @live_games = @today_games.select(&:live?)
+    @groups = []
+
+    if @competition.present?
+      @groups = Promiedos::GroupScraper.new.call(@competition.slug)
+    end
   end
 
   def show
