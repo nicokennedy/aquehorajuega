@@ -11,6 +11,9 @@
 
 <div class="page">
   <nav class="competition-nav">
+    <%= link_to root_path(locale: I18n.locale), class: "nav-brand" do %>
+      <%= image_tag "logo_aqhj.svg", alt: "¿A qué hora juega?", class: "nav-brand-logo" %>
+    <% end %>
     <%= link_to all_label,
       root_path(locale: I18n.locale, q: params[:q], tab: params[:tab].presence || "today"),
       class: ("active" unless @competition.present?) %>

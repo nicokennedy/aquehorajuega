@@ -924,3 +924,73 @@ h1 {
   margin-bottom: 4px;
   text-transform: capitalize;
 }
+.nav-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(96, 165, 250, 0.25);
+  flex: 0 0 auto;
+}
+
+.nav-logo img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  filter: brightness(2.4);
+}
+
+.nav-brand {
+  display: inline-flex;
+  align-items: center;
+  flex: 0 0 auto;
+  text-decoration: none;
+  margin-right: 8px;
+}
+
+.nav-brand-logo {
+  height: 36px;
+  width: auto;
+  display: block;
+}
+
+@media (max-width: 640px) {
+  .nav-brand-logo {
+    height: 32px;
+  }
+}
+
+.competition-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.competition-nav a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 44px;
+  padding: 0 18px;
+  border-radius: 999px;
+  line-height: 1;
+  flex: 0 0 auto;
+  text-align: center;
+}
+
+.competition-nav .nav-brand {
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  margin-right: 4px;
+}
+
+.competition-nav .nav-brand-logo {
+  width: 32px;
+  height: 32px;
+}

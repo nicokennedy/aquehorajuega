@@ -7,7 +7,8 @@
 
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <meta name="description" content="<%= content_for?(:description) ? yield(:description) : "Partidos de hoy, fixture, horarios locales y resultados en vivo de fútbol. Mundial 2026, Libertadores, Sudamericana y más." %>">
-
+    <meta property="og:image" content="<%= image_url('social-share.png') %>">
+    <meta name="twitter:image" content="<%= image_url('social-share.png') %>">
     <meta property="og:title" content="<%= content_for?(:title) ? yield(:title) : "¿A qué hora juega?" %>">
     <meta property="og:description" content="<%= content_for?(:description) ? yield(:description) : "Partidos de hoy, fixture, horarios locales y resultados en vivo de fútbol. Mundial 2026, Libertadores, Sudamericana y más." %>">
     <meta property="og:type" content="website">
@@ -18,6 +19,8 @@
     <meta name="twitter:title" content="<%= content_for?(:title) ? yield(:title) : "¿A qué hora juega?" %>">
     <meta name="twitter:description" content="<%= content_for?(:description) ? yield(:description) : "Partidos de hoy, fixture, horarios locales y resultados en vivo de fútbol. Mundial 2026, Libertadores, Sudamericana y más." %>">
     <link rel="canonical" href="<%= request.base_url + request.path %>">
+    <link rel="icon" href="<%= asset_path('favicon_aqhj.svg') %>" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="<%= asset_path('favicon_aqhj.svg') %>">
 
     <%= csrf_meta_tags %>
     <%= csp_meta_tag %>
