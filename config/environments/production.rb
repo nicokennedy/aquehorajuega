@@ -51,6 +51,12 @@ Rails.application.configure do
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
   config.force_ssl = true
 
+
+  # config/environments/production.rb
+  config.action_controller.default_url_options = {
+    host: "www.aquehorajuega.pro",
+    protocol: "https"
+  }
   # Log to STDOUT by default
   config.logger = ActiveSupport::Logger.new(STDOUT)
     .tap  { |logger| logger.formatter = ::Logger::Formatter.new }
