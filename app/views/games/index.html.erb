@@ -1,15 +1,60 @@
-<% content_for :title do %>
-  <%= @competition.present? ? "Fixture #{@competition.name} | Partidos y horarios" : "Partidos de hoy y próximos fixtures | ¿A qué hora juega?" %>
-<% end %>
+<% requested_tab = params[:tab].presence || "today" %>
+<% effective_tab = requested_tab == "today" && @today_games.empty? ? "upcoming" : requested_tab %>
 
-<% content_for :description do %>
-  <%= @competition.present? ? "Consultá el fixture de #{@competition.name}, próximos partidos, horarios locales y resultados en vivo." : "Partidos de hoy, próximos fixtures, horarios locales y resultados en vivo de fútbol. Mundial 2026, Libertadores, Sudamericana y más." %>
-<% end %>
+<%
+  seo_title =
+    if @competition.present?
+      case effective_tab
+      when "upcoming"
+        "Próximos partidos de #{@competition.name} | Horarios y fixture"
+      when "groups"
+        "Tabla y grupos de #{@competition.name} | Posiciones y fixture"
+      when "today"
+        "Partidos de hoy de #{@competition.name} | Horarios en vivo"
+      else
+        "Fixture #{@competition.name} | Partidos y horarios"
+      end
+    else
+      case effective_tab
+      when "upcoming"
+        "Próximos partidos de fútbol | Fixtures y horarios"
+      when "today"
+        "Partidos de hoy | Horarios y resultados en vivo"
+      else
+        "Partidos de fútbol y próximos fixtures | ¿A qué hora juega?"
+      end
+    end
+
+  seo_description =
+    if @competition.present?
+      case effective_tab
+      when "upcoming"
+        "Consultá los próximos partidos de #{@competition.name}, horarios locales, fixtures actualizados y resultados en vivo."
+      when "groups"
+        "Seguí la tabla de posiciones y grupos de #{@competition.name} con fixtures y partidos actualizados."
+      when "today"
+        "Mirá los partidos de hoy de #{@competition.name}, horarios locales y resultados en vivo."
+      else
+        "Consultá el fixture de #{@competition.name}, próximos partidos, horarios locales y resultados en vivo."
+      end
+    else
+      case effective_tab
+      when "upcoming"
+        "Consultá próximos partidos de fútbol, fixtures actualizados y horarios locales."
+      when "today"
+        "Partidos de hoy, horarios locales y resultados en vivo de fútbol."
+      else
+        "Partidos de hoy, próximos fixtures, horarios locales y resultados en vivo de fútbol."
+      end
+    end
+%>
+
+<% content_for :title, seo_title %>
+<% content_for :description, seo_description %>
 
 <% all_label = t("app.all", default: "Todos") %>
 <% current_name = @competition&.name || all_label %>
-<% requested_tab = params[:tab].presence || "today" %>
-<% effective_tab = requested_tab == "today" && @today_games.empty? ? "upcoming" : requested_tab %>
+
 
 <div class="page">
   <nav class="competition-nav">
