@@ -8,7 +8,15 @@ Rails.application.routes.draw do
   scope "(:locale)", locale: /es|en|pt/ do
     root "games#index"
 
+    get "/partidos-de-hoy", to: "games#today", as: :today_games_page
+    get "/proximos-partidos", to: "games#upcoming", as: :upcoming_games_page
+
+    get "/:competition/groups", to: "games#groups", as: :competition_groups
+    get "/:competition/upcoming", to: "games#upcoming_competition", as: :competition_upcoming
+    get "/:competition/today", to: "games#today_competition", as: :competition_today
+
     get "/dates/:date", to: "dates#show", as: :date_games
+
     get "/:competition", to: "games#index", as: :competition
 
     resources :games, only: [:show]

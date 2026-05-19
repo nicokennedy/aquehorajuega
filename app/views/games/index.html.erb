@@ -88,20 +88,20 @@
   <div class="tabs">
     <%= link_to "#{t("app.today")} #{@today_games.count}",
       (@competition.present? ?
-        competition_path(@competition.slug, locale: I18n.locale, q: @query, tab: "today") :
+        competition_today_path(@competition.slug, locale: I18n.locale, q: @query) :
         root_path(locale: I18n.locale, q: @query, tab: "today")),
       class: "tab #{'active' if effective_tab == 'today'}" %>
 
     <%= link_to "#{t("app.upcoming")} #{@upcoming_games.count}",
       (@competition.present? ?
-        competition_path(@competition.slug, locale: I18n.locale, q: @query, tab: "upcoming") :
+        competition_upcoming_path(@competition.slug, locale: I18n.locale, q: @query) :
         root_path(locale: I18n.locale, q: @query, tab: "upcoming")),
       class: "tab #{'active' if effective_tab == 'upcoming'}" %>
 
     <% if @groups.any? %>
       <%= link_to "Grupos",
         (@competition.present? ?
-          competition_path(@competition.slug, locale: I18n.locale, q: @query, tab: "groups") :
+          competition_groups_path(@competition.slug, locale: I18n.locale, q: @query) :
           root_path(locale: I18n.locale, q: @query, tab: "groups")),
         class: "tab #{'active' if effective_tab == 'groups'}" %>
     <% end %>

@@ -4,9 +4,17 @@ SitemapGenerator::Sitemap.create do
   add root_path(locale: :es), changefreq: "daily", priority: 1.0
 
   Competition.find_each do |competition|
-    add root_path(locale: :es, competition: competition.slug, tab: "upcoming"),
+    add competition_path(locale: :es, competition: competition.slug),
         changefreq: "daily",
         priority: 0.8
+
+    add competition_upcoming_path(locale: :es, competition: competition.slug),
+        changefreq: "daily",
+        priority: 0.8
+
+    add competition_groups_path(locale: :es, competition: competition.slug),
+        changefreq: "daily",
+        priority: 0.7
   end
 
   Game.includes(:home_team, :away_team, :competition).find_each do |game|

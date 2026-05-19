@@ -1,5 +1,19 @@
 class GamesController < ApplicationController
   def index
+    if action_name == "index"
+      if params[:tab] == "upcoming" && params[:competition].present?
+        return redirect_to competition_upcoming_path(params[:competition], locale: I18n.locale, q: params[:q]), status: :moved_permanently
+      end
+
+      if params[:tab] == "groups" && params[:competition].present?
+        return redirect_to competition_groups_path(params[:competition], locale: I18n.locale, q: params[:q]), status: :moved_permanently
+      end
+
+      if params[:tab] == "today" && params[:competition].present?
+        return redirect_to competition_today_path(params[:competition], locale: I18n.locale, q: params[:q]), status: :moved_permanently
+      end
+    end
+
     argentina_zone = Time.find_zone!("America/Argentina/Buenos_Aires")
     argentina_now = argentina_zone.now
     now = Time.current
@@ -27,12 +41,13 @@ class GamesController < ApplicationController
           WHEN 'world-cup-2026' THEN 1
           WHEN 'libertadores' THEN 2
           WHEN 'sudamericana' THEN 3
-          WHEN 'liga-argentina' THEN 4
-          ELSE 5 END"
+          WHEN 'liga-profesional' THEN 4
+          WHEN 'champions-league' THEN 5
+          ELSE 6 END"
         )
       )
-    competition_slug = params[:competition].presence
 
+    competition_slug = params[:competition].presence
     @competition = Competition.find_by(slug: competition_slug)
 
     base_games = Game.includes(:home_team, :away_team, :competition)
@@ -48,13 +63,7 @@ class GamesController < ApplicationController
         )
     end
 
-    priority_competitions = [
-      "world-cup-2026",
-      "libertadores",
-      "sudamericana",
-      "liga-profesional",
-      "champions-league"
-    ]
+    priority_competitions = allowed_slugs
 
     priority_sql = <<~SQL
       CASE
@@ -90,11 +99,7 @@ class GamesController < ApplicationController
       .joins(:competition)
       .where(competitions: { slug: priority_competitions })
       .where("starts_at > ?", now.end_of_day)
-      .order(
-        Arel.sql(
-          "#{priority_sql}, games.starts_at ASC"
-        )
-      )
+      .order(Arel.sql("#{priority_sql}, games.starts_at ASC"))
 
     @live_games = @today_games.select(&:live?)
     @groups = []
@@ -102,6 +107,36 @@ class GamesController < ApplicationController
     if @competition.present?
       @groups = Promiedos::GroupScraper.new.call(@competition.slug)
     end
+  end
+
+  def today
+    params[:tab] = "today"
+    index
+    render :index
+  end
+
+  def upcoming
+    params[:tab] = "upcoming"
+    index
+    render :index
+  end
+
+  def groups
+    params[:tab] = "groups"
+    index
+    render :index
+  end
+
+  def upcoming_competition
+    params[:tab] = "upcoming"
+    index
+    render :index
+  end
+
+  def today_competition
+    params[:tab] = "today"
+    index
+    render :index
   end
 
   def show
