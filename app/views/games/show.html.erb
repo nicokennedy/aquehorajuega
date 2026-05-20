@@ -16,36 +16,19 @@
 
 <script type="application/ld+json">
 <%= raw({
-  "@context": "https://schema.org",
-  "@type": "SportsEvent",
-  "name": "#{@game.home_team.name} vs #{@game.away_team.name}",
-  "startDate": @game.starts_at.iso8601,
-  "eventStatus": "https://schema.org/EventScheduled",
-  "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",
-  "sport": "Soccer",
-  "location": {
-    "@type": "Place",
-    "name": @game.stadium,
-    "address": {
-      "@type": "PostalAddress",
-      "addressLocality": @game.city
+  "@context": "https://schema.org",  "@type": "SportsEvent",  "name": "#{@game.home_team.name} vs #{@game.away_team.name}",  "startDate": @game.starts_at.iso8601,  "eventStatus": "https://schema.org/EventScheduled",  "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",  "sport": "Soccer",  "location": {
+    "@type": "Place",    "name": @game.stadium,    "address": {
+      "@type": "PostalAddress",      "addressLocality": @game.city
     }
-  },
-  "competitor": [
+  },  "competitor": [
     {
-      "@type": "SportsTeam",
-      "name": @game.home_team.name
-    },
-    {
-      "@type": "SportsTeam",
-      "name": @game.away_team.name
+      "@type": "SportsTeam",      "name": @game.home_team.name
+    },    {
+      "@type": "SportsTeam",      "name": @game.away_team.name
     }
-  ],
-  "organizer": {
-    "@type": "Organization",
-    "name": @game.competition&.name
-  },
-  "description": "Horario de #{@game.home_team.name} vs #{@game.away_team.name} en tu país."
+  ],  "organizer": {
+    "@type": "Organization",    "name": @game.competition&.name
+  },  "description": "Horario de #{@game.home_team.name} vs #{@game.away_team.name} en tu país."
 }.to_json) %>
 </script>
 
@@ -105,7 +88,7 @@
 
         <div class="share-time">
           <strong data-local-main-time="<%= @game.starts_at.iso8601 %>">
-            <%= @game.starts_at.strftime("%H:%M") %>
+            <%= @game.starts_at.in_time_zone("America/Argentina/Buenos_Aires").strftime("%H:%M") %>
           </strong>
 
           <span><%= t("app.your_time") %></span>
@@ -140,18 +123,14 @@
 
 <script>
   function formatMainTime(date) {
-    return new Intl.DateTimeFormat(undefined, {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false
+    return new Intl.DateTimeFormat("es-AR", {
+      timeZone: "America/Argentina/Buenos_Aires",      hour: "2-digit",      minute: "2-digit",      hour12: false
     }).format(date);
   }
 
   function formatDate(date) {
-    return new Intl.DateTimeFormat(undefined, {
-      weekday: "short",
-      day: "2-digit",
-      month: "2-digit"
+    return new Intl.DateTimeFormat("es-AR", {
+      timeZone: "America/Argentina/Buenos_Aires",      weekday: "short",      day: "2-digit",      month: "2-digit"
     }).format(date);
   }
 
@@ -176,9 +155,7 @@
 
     if (navigator.share) {
       navigator.share({
-        title: title,
-        text: text,
-        url: window.location.href
+        title: title,        text: text,        url: window.location.href
       });
     } else {
       navigator.clipboard.writeText(window.location.href);

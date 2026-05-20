@@ -51,7 +51,7 @@
           class="match-time"
           data-local-main-time="<%= game.starts_at.iso8601 %>"
         >
-          <%= game.starts_at.strftime("%H:%M") %>
+          <%= game.starts_at.in_time_zone("America/Argentina/Buenos_Aires").strftime("%H:%M") %>
         </div>
       <% end %>
     </div>

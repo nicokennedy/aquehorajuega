@@ -62,14 +62,10 @@
       <%= image_tag "logo_aqhj.svg", alt: "¿A qué hora juega?", class: "nav-brand-logo" %>
     <% end %>
 
-    <%= link_to all_label,
-      root_path(locale: I18n.locale, q: params[:q], tab: "today"),
-      class: ("active" unless @competition.present?) %>
+    <%= link_to all_label,      root_path(locale: I18n.locale, q: params[:q], tab: "today"),      class: ("active" unless @competition.present?) %>
 
     <% @competitions.each do |competition| %>
-      <%= link_to competition.name,
-        competition_path(competition.slug, locale: I18n.locale, q: params[:q], tab: "today"),
-        class: ("active" if @competition == competition) %>
+      <%= link_to competition.name,        competition_path(competition.slug, locale: I18n.locale, q: params[:q], tab: "today"),        class: ("active" if @competition == competition) %>
     <% end %>
   </nav>
 
@@ -79,11 +75,9 @@
 
       <div class="locale-switcher">
         <% [:es, :en, :pt].each do |locale| %>
-          <%= link_to locale.to_s.upcase,
-            (@competition.present? ?
+          <%= link_to locale.to_s.upcase,            (@competition.present? ?
               competition_path(@competition.slug, locale: locale, q: @query, tab: effective_tab) :
-              root_path(locale: locale, q: @query, tab: effective_tab)),
-            class: ("active" if I18n.locale == locale) %>
+              root_path(locale: locale, q: @query, tab: effective_tab)),            class: ("active" if I18n.locale == locale) %>
         <% end %>
       </div>
     </div>
@@ -91,11 +85,7 @@
     <h1><%= t("app.title") %></h1>
     <p class="subtitle"><%= t("app.subtitle") %></p>
 
-    <%= form_with url: (@competition.present? ? competition_path(@competition.slug) : root_path),
-      method: :get,
-      local: true,
-      class: "search-form",
-      data: { controller: "search", search_target: "form" } do %>
+    <%= form_with url: (@competition.present? ? competition_path(@competition.slug) : root_path),      method: :get,      local: true,      class: "search-form",      data: { controller: "search", search_target: "form" } do %>
 
       <%= hidden_field_tag :locale, I18n.locale %>
       <%= hidden_field_tag :tab, effective_tab %>
@@ -104,11 +94,9 @@
         <%= text_field_tag :q, @query, placeholder: t("app.search_placeholder"), class: "search-input", data: { action: "input->search#submit" } %>
 
         <% if @query.present? %>
-          <%= link_to "×",
-            (@competition.present? ?
+          <%= link_to "×",            (@competition.present? ?
               competition_path(@competition.slug, locale: I18n.locale, tab: effective_tab) :
-              root_path(locale: I18n.locale, tab: effective_tab)),
-            class: "clear-search" %>
+              root_path(locale: I18n.locale, tab: effective_tab)),            class: "clear-search" %>
         <% end %>
       </div>
     <% end %>
@@ -131,24 +119,18 @@
   <% end %>
 
   <div class="tabs">
-    <%= link_to "#{t("app.today")} #{@today_games.count}",
-      (@competition.present? ?
+    <%= link_to "#{t("app.today")} #{@today_games.count}",      (@competition.present? ?
         competition_today_path(@competition.slug, locale: I18n.locale, q: @query) :
-        root_path(locale: I18n.locale, q: @query, tab: "today")),
-      class: "tab #{'active' if effective_tab == 'today'}" %>
+        root_path(locale: I18n.locale, q: @query, tab: "today")),      class: "tab #{'active' if effective_tab == 'today'}" %>
 
-    <%= link_to "#{t("app.upcoming")} #{@upcoming_games.count}",
-      (@competition.present? ?
+    <%= link_to "#{t("app.upcoming")} #{@upcoming_games.count}",      (@competition.present? ?
         competition_upcoming_path(@competition.slug, locale: I18n.locale, q: @query) :
-        root_path(locale: I18n.locale, q: @query, tab: "upcoming")),
-      class: "tab #{'active' if effective_tab == 'upcoming'}" %>
+        root_path(locale: I18n.locale, q: @query, tab: "upcoming")),      class: "tab #{'active' if effective_tab == 'upcoming'}" %>
 
     <% if @groups.any? %>
-      <%= link_to "Grupos",
-        (@competition.present? ?
+      <%= link_to "Grupos",        (@competition.present? ?
           competition_groups_path(@competition.slug, locale: I18n.locale, q: @query) :
-          root_path(locale: I18n.locale, q: @query, tab: "groups")),
-        class: "tab #{'active' if effective_tab == 'groups'}" %>
+          root_path(locale: I18n.locale, q: @query, tab: "groups")),        class: "tab #{'active' if effective_tab == 'groups'}" %>
     <% end %>
   </div>
 
@@ -267,18 +249,14 @@
 
 <script>
   function formatMainTime(date) {
-    return new Intl.DateTimeFormat(undefined, {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false
+    return new Intl.DateTimeFormat("es-AR", {
+      timeZone: "America/Argentina/Buenos_Aires",      hour: "2-digit",      minute: "2-digit",      hour12: false
     }).format(date);
   }
 
   function formatDate(date) {
-    return new Intl.DateTimeFormat(undefined, {
-      weekday: "short",
-      day: "2-digit",
-      month: "2-digit"
+    return new Intl.DateTimeFormat("es-AR", {
+      timeZone: "America/Argentina/Buenos_Aires",      weekday: "short",      day: "2-digit",      month: "2-digit"
     }).format(date);
   }
 
