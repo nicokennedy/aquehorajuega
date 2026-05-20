@@ -59,6 +59,10 @@ module Promiedos
       away_team.save!
 
       starts_at = parse_datetime(data["start_time"])
+
+      if running_on_heroku?
+        starts_at += 2.hours
+      end
       target_slug = build_slug(home_team.name, away_team.name, starts_at)
 
       game = Game.find_by(external_id: data["id"])
@@ -96,6 +100,10 @@ module Promiedos
         0,
         "-03:00"
       )
+    end
+
+    def running_on_heroku?
+      ENV["DYNO"].present?
     end
 
     def map_status(enum)
