@@ -27,8 +27,8 @@ class GamesController < ApplicationController
 
     allowed_slugs = [
       "world-cup-2026",
-      "conmebol-libertadores",
-      "conmebol-sudamericana",
+      "libertadores",
+      "sudamericana",
       "liga-profesional",
       "champions-league"
     ]
@@ -39,8 +39,8 @@ class GamesController < ApplicationController
         Arel.sql(
           "CASE slug
           WHEN 'world-cup-2026' THEN 1
-          WHEN 'conmebol-libertadores' THEN 2
-          WHEN 'conmebol-sudamericana' THEN 3
+          WHEN 'libertadores' THEN 2
+          WHEN 'sudamericana' THEN 3
           WHEN 'liga-profesional' THEN 4
           WHEN 'champions-league' THEN 5
           ELSE 6 END"
