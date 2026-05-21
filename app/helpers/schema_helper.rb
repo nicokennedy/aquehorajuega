@@ -33,4 +33,37 @@ module SchemaHelper
       description: "Horario de #{game.home_team.name} vs #{game.away_team.name} en tu país."
     }.to_json.html_safe
   end
+
+  def faq_schema_for_team(team)
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "¿A qué hora juega #{team.name} hoy?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Consultá los horarios actualizados de #{team.name} según tu país y zona horaria."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Dónde ver los partidos de #{team.name}?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Mostramos horarios locales, competencias y próximos partidos de #{team.name}."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "¿Cuáles son los próximos partidos de #{team.name}?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Encontrá el fixture actualizado y los próximos encuentros de #{team.name}."
+          }
+        }
+      ]
+    }.to_json.html_safe
+  end
 end

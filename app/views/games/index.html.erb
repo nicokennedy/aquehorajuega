@@ -82,7 +82,22 @@
       </div>
     </div>
 
-    <h1><%= t("app.title") %></h1>
+    <h1>
+      <% if @competition.present? %>
+        <% case effective_tab %>
+        <% when "today" %>
+          Partidos de hoy de <%= @competition.name %>
+        <% when "upcoming" %>
+          Próximos partidos de <%= @competition.name %>
+        <% when "groups" %>
+          Tabla y grupos de <%= @competition.name %>
+        <% else %>
+          Fixture de <%= @competition.name %>
+        <% end %>
+      <% else %>
+        <%= t("app.title") %>
+      <% end %>
+    </h1>
     <p class="subtitle"><%= t("app.subtitle") %></p>
 
     <%= form_with url: (@competition.present? ? competition_path(@competition.slug) : root_path),      method: :get,      local: true,      class: "search-form",      data: { controller: "search", search_target: "form" } do %>
@@ -100,7 +115,8 @@
         <% end %>
       </div>
     <% end %>
-  </header>
+  
+  
 
   <% if @query.present? && @matching_teams.any? %>
     <section class="team-results">
@@ -133,6 +149,18 @@
           root_path(locale: I18n.locale, q: @query, tab: "groups")),        class: "tab #{'active' if effective_tab == 'groups'}" %>
     <% end %>
   </div>
+
+    <% unless @competition.present? %>
+      <section class="section popular-teams-section">
+        <h2>Equipos más buscados</h2>
+
+        <div class="popular-teams-grid">
+          <% Team.where(name: ["Boca Juniors", "River Plate", "Flamengo", "Argentina"]).each do |team| %>
+            <%= link_to "¿A qué hora juega #{team.name}?", team_path(team, locale: I18n.locale), class: "popular-team-card" %>
+          <% end %>
+        </div>
+      </section>
+    <% end %>
 
   <% if effective_tab == "groups" %>
     <section class="groups-section">

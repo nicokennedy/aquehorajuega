@@ -33,4 +33,23 @@ class TeamsController < ApplicationController
       .order(starts_at: :desc)
       .limit(10)
   end
+
+  def today
+    @team = Team.find_by!("LOWER(REPLACE(name, ' ', '-')) = ?", params[:id].downcase)
+
+    argentina_zone = Time.find_zone!("America/Argentina/Buenos_Aires")
+    argentina_now = argentina_zone.now
+    today_range = argentina_now.beginning_of_day.utc..argentina_now.end_of_day.utc
+
+    base_games = @team.games.includes(:home_team, :away_team, :competition)
+
+    @today_games = base_games
+      .where(starts_at: today_range)
+      .order(:starts_at)
+
+    @next_game = base_games
+      .where("starts_at > ?", argentina_now.end_of_day.utc)
+      .order(:starts_at)
+      .first
+  end
 end

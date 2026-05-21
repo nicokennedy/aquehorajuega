@@ -20,6 +20,10 @@ Rails.application.routes.draw do
     get "/:competition", to: "games#index", as: :competition
 
     resources :games, only: [:show]
-    resources :teams, only: [:show]
+    resources :teams, only: [:show] do
+      member do
+        get :today
+      end
+    end
   end
 end

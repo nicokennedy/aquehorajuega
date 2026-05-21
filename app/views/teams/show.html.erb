@@ -1,3 +1,7 @@
+<script type="application/ld+json">
+  <%= faq_schema_for_team(@team) %>
+</script>
+
 <% content_for :title do %>
   <%= "¿A qué hora juega #{@team.name} hoy? | Próximos partidos y TV" %>
 <% end %>
@@ -15,6 +19,9 @@
     <p class="subtitle">
       Próximos partidos de <%= @team.name %>, horario local automático, competencia y estadio.
     </p>
+    <div class="team-today-link">
+      <%= link_to "Ver si #{@team.name} juega hoy →", today_team_path(@team, locale: I18n.locale) %>
+    </div>
   </header>
 
   <section class="section">
@@ -28,6 +35,7 @@
       <p class="empty">No hay partidos hoy.</p>
     <% end %>
   </section>
+
 
   <section class="section">
     <h2>Próximos partidos de <%= @team.name %></h2>
@@ -52,6 +60,31 @@
       <% end %>
     </section>
   <% end %>
+
+    <section class="section faq-section">
+      <h2>Preguntas frecuentes sobre <%= @team.name %></h2>
+
+      <div class="faq-item">
+        <h3>¿A qué hora juega <%= @team.name %> hoy?</h3>
+        <p>
+          Consultá los horarios actualizados de <%= @team.name %> según tu país y zona horaria.
+        </p>
+      </div>
+
+      <div class="faq-item">
+        <h3>¿Dónde ver los partidos de <%= @team.name %>?</h3>
+        <p>
+          Mostramos horarios locales, competencias y próximos partidos de <%= @team.name %>.
+        </p>
+      </div>
+
+      <div class="faq-item">
+        <h3>¿Cuáles son los próximos partidos de <%= @team.name %>?</h3>
+        <p>
+          Encontrá el fixture actualizado y los próximos encuentros de <%= @team.name %>.
+        </p>
+      </div>
+    </section>
 
   <section class="seo-text">
     <h2>Fixture de <%= @team.name %></h2>

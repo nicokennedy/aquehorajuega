@@ -90,6 +90,7 @@ h1 {
 
 .search-form {
   margin-top: 28px;
+  margin-bottom: 24px;
 }
 
 .search-input {
@@ -890,6 +891,7 @@ h1 {
 
   .tabs {
     gap: 12px;
+    margin-top: 24px;
   }
 
   .tab {
@@ -1146,4 +1148,62 @@ h1 {
   height: 22px;
   object-fit: contain;
   flex: 0 0 auto;
+}
+
+
+.faq-section {
+  margin-top: 48px;
+}
+
+.faq-item {
+  margin-bottom: 24px;
+}
+
+.faq-item h3 {
+  font-size: 18px;
+  margin-bottom: 8px;
+}
+
+.faq-item p {
+  color: #666;
+  line-height: 1.6;
+}
+
+.team-today-link {
+  margin-top: 16px;
+}
+
+.team-today-link a {
+  color: #5ea2ff;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.team-today-link a:hover {
+  text-decoration: underline;
+}
+
+.popular-teams-section {
+  margin-top: 32px;
+}
+
+.popular-teams-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.popular-team-card {
+  display: block;
+  padding: 18px;
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 16px;
+  background: rgba(255,255,255,0.04);
+  color: #5ea2ff;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.popular-team-card:hover {
+  background: rgba(255,255,255,0.08);
 }
