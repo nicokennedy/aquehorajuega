@@ -4,6 +4,9 @@ Rails.application.routes.draw do
   get 'dates/show'
   get 'teams/show'
 
+  post "/internal/promiedos/sync", to: "internal/promiedos#sync"
+  get "/internal/promiedos/sync", to: "internal/promiedos#sync"
+
   scope "(:locale)", locale: /es|en|pt/ do
     root "games#index"
 
