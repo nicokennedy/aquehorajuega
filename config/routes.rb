@@ -1,6 +1,5 @@
 Rails.application.routes.draw do
   get "/sitemap.xml", to: redirect("/sitemap.xml.gz")
-  get "/sitemap.xml.gz", to: redirect("/sitemap.xml.gz")
 
   get 'dates/show'
   get 'teams/show'
