@@ -6,11 +6,15 @@ module SchemaHelper
       name: "#{game.home_team.name} vs #{game.away_team.name}",
       startDate: game.starts_at.iso8601,
       eventStatus: "https://schema.org/EventScheduled",
+      eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
       sport: "Soccer",
       location: {
         "@type": "Place",
-        name: game.stadium,
-        address: game.city
+        name: game.stadium.presence || game.city.presence || "Estadio por confirmar",
+        address: {
+          "@type": "PostalAddress",
+          addressLocality: game.city.presence || "Ciudad por confirmar"
+        }
       },
       competitor: [
         {
@@ -21,7 +25,12 @@ module SchemaHelper
           "@type": "SportsTeam",
           name: game.away_team.name
         }
-      ]
+      ],
+      organizer: {
+        "@type": "Organization",
+        name: game.competition&.name
+      },
+      description: "Horario de #{game.home_team.name} vs #{game.away_team.name} en tu país."
     }.to_json.html_safe
   end
 end

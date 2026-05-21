@@ -1,6 +1,3 @@
-<script type="application/ld+json">
-  <%= sports_event_schema(@game) %>
-</script>
 
 <% content_for :title do %>
   <%= "A qué hora juega #{@game.home_team.name} vs #{@game.away_team.name} | #{@game.competition&.name}" %>
@@ -14,23 +11,6 @@
   <%= sports_event_schema(@game) %>
 </script>
 
-<script type="application/ld+json">
-<%= raw({
-  "@context": "https://schema.org",  "@type": "SportsEvent",  "name": "#{@game.home_team.name} vs #{@game.away_team.name}",  "startDate": @game.starts_at.iso8601,  "eventStatus": "https://schema.org/EventScheduled",  "eventAttendanceMode": "https://schema.org/OfflineEventAttendanceMode",  "sport": "Soccer",  "location": {
-    "@type": "Place",    "name": @game.stadium,    "address": {
-      "@type": "PostalAddress",      "addressLocality": @game.city
-    }
-  },  "competitor": [
-    {
-      "@type": "SportsTeam",      "name": @game.home_team.name
-    },    {
-      "@type": "SportsTeam",      "name": @game.away_team.name
-    }
-  ],  "organizer": {
-    "@type": "Organization",    "name": @game.competition&.name
-  },  "description": "Horario de #{@game.home_team.name} vs #{@game.away_team.name} en tu país."
-}.to_json) %>
-</script>
 
 <div class="page">
   <%= link_to t("app.back"), root_path(locale: I18n.locale, competition: @game.competition&.slug, tab: "upcoming"), class: "back-link" %>
