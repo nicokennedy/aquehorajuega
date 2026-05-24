@@ -26,6 +26,8 @@ module Promiedos
 
     def canonical_competition_slug(slug)
       case slug
+      when "fifa-world-cup"
+        "world-cup-2026"
       when "conmebol-libertadores"
         "libertadores"
       when "conmebol-sudamericana"
@@ -37,6 +39,8 @@ module Promiedos
 
     def canonical_competition_name(name, slug)
       case slug
+      when "world-cup-2026"
+        "Mundial 2026"
       when "libertadores"
         "Libertadores"
       when "sudamericana"
