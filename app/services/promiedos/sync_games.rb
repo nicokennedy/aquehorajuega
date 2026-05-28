@@ -2,7 +2,7 @@ module Promiedos
   class SyncGames
     def call
       Game.where("starts_at < ?", 7.days.ago).delete_all
-      leagues = Promiedos::Scraper.new.call
+      leagues = scraper.call
 
       leagues.each do |league|
         competition_slug = canonical_competition_slug(league["url_name"])
@@ -20,6 +20,10 @@ module Promiedos
       end
 
       Promiedos::GroupScraper.new.sync_team_ids!
+    end
+
+    def scraper
+      Promiedos::Scraper.new
     end
 
     private
