@@ -98,7 +98,7 @@ class GamesController < ApplicationController
     @upcoming_games = base_games
       .joins(:competition)
       .where(competitions: { slug: priority_competitions })
-      .where("starts_at > ?", now.end_of_day)
+      .where("starts_at > ?", now)
       .order(Arel.sql("#{priority_sql}, games.starts_at ASC"))
 
     @live_games = @today_games.select(&:live?)
