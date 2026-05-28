@@ -11,5 +11,15 @@ module Internal
 
       render plain: "ok"
     end
+
+    def full_sync
+      unless params[:token] == ENV["PROMIEDOS_SYNC_TOKEN"]
+        return head :unauthorized
+      end
+
+      Promiedos::FullSyncGames.new.call
+
+      render plain: "ok"
+    end
   end
 end

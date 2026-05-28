@@ -6,6 +6,8 @@ Rails.application.routes.draw do
 
   post "/internal/promiedos/sync", to: "internal/promiedos#sync"
   get "/internal/promiedos/sync", to: "internal/promiedos#sync"
+  post "/internal/promiedos/full_sync", to: "internal/promiedos#full_sync"
+  get "/internal/promiedos/full_sync", to: "internal/promiedos#full_sync"
 
   scope "(:locale)", locale: /es|en|pt/ do
     root "games#index"
