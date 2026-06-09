@@ -1,3 +1,7 @@
+<script type="application/ld+json">
+  <%= faq_schema_for_team(@team, today_games: @today_games, upcoming_games: [@next_game].compact) %>
+</script>
+
 <% content_for :title do %>
   <% if @today_games.any? %>
     ¿A qué hora juega <%= @team.name %> hoy? | <%= @today_games.first.starts_at.in_time_zone("America/Argentina/Buenos_Aires").strftime("%-d/%-m - %H:%Mhs") %>
