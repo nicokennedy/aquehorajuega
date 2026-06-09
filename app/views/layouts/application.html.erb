@@ -28,6 +28,10 @@
     <meta name="twitter:title" content="<%= content_for?(:title) ? yield(:title) : "¿A qué hora juega?" %>">
     <meta name="twitter:description" content="<%= content_for?(:description) ? yield(:description) : "Partidos de hoy, fixture, horarios locales y resultados en vivo de fútbol. Mundial 2026, Libertadores, Sudamericana y más." %>">
     <link rel="canonical" href="<%= request.base_url + request.path %>">
+    <link rel="alternate" hreflang="es" href="<%= request.base_url + request.path.gsub(/^\/(es|en|pt)\//, '/es/') %>">
+    <link rel="alternate" hreflang="en" href="<%= request.base_url + request.path.gsub(/^\/(es|en|pt)\//, '/en/') %>">
+    <link rel="alternate" hreflang="pt" href="<%= request.base_url + request.path.gsub(/^\/(es|en|pt)\//, '/pt/') %>">
+    <link rel="alternate" hreflang="x-default" href="<%= request.base_url + request.path.gsub(/^\/(es|en|pt)\//, '/es/') %>">
     <link rel="icon" href="<%= asset_path('favicon_aqhj.svg') %>" type="image/svg+xml">
     <link rel="apple-touch-icon" href="<%= asset_path('favicon_aqhj.svg') %>">
 
