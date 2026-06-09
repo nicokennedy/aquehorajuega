@@ -1,5 +1,5 @@
 <script type="application/ld+json">
-  <%= faq_schema_for_team(@team) %>
+  <%= faq_schema_for_team(@team, today_games: @today_games, upcoming_games: @upcoming_games) %>
 </script>
 
 <% content_for :title do %>
