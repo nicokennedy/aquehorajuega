@@ -17,7 +17,11 @@ module Internal
         return head :unauthorized
       end
 
-      Promiedos::FullSyncGames.new.call
+      Thread.new do
+        ActiveRecord::Base.connection_pool.with_connection do
+          Promiedos::FullSyncGames.new.call
+        end
+      end
 
       render plain: "ok"
     end
