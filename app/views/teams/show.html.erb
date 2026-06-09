@@ -67,21 +67,37 @@
       <div class="faq-item">
         <h3>¿A qué hora juega <%= @team.name %> hoy?</h3>
         <p>
-          Consultá los horarios actualizados de <%= @team.name %> según tu país y zona horaria.
-        </p>
-      </div>
-
-      <div class="faq-item">
-        <h3>¿Dónde ver los partidos de <%= @team.name %>?</h3>
-        <p>
-          Mostramos horarios locales, competencias y próximos partidos de <%= @team.name %>.
+          <% if @today_games.any? %>
+            <%= @team.name %> juega hoy a las <%= @today_games.first.starts_at.in_time_zone("America/Argentina/Buenos_Aires").strftime("%H:%M") %>hs (hora Argentina). El horario en tu país se muestra arriba automáticamente.
+          <% else %>
+            <%= @team.name %> no juega hoy.
+            <% if @upcoming_games.any? %>
+              Su próximo partido es el <%= @upcoming_games.first.starts_at.in_time_zone("America/Argentina/Buenos_Aires").strftime("%-d de %B") %>.
+            <% end %>
+          <% end %>
         </p>
       </div>
 
       <div class="faq-item">
         <h3>¿Cuáles son los próximos partidos de <%= @team.name %>?</h3>
         <p>
-          Encontrá el fixture actualizado y los próximos encuentros de <%= @team.name %>.
+          <% if @upcoming_games.any? %>
+            El próximo partido de <%= @team.name %> es el <%= @upcoming_games.first.starts_at.in_time_zone("America/Argentina/Buenos_Aires").strftime("%-d de %B") %> contra <%= @upcoming_games.first.home_team == @team ? @upcoming_games.first.away_team.name : @upcoming_games.first.home_team.name %>.
+          <% else %>
+            No hay próximos partidos cargados para <%= @team.name %>.
+          <% end %>
+        </p>
+      </div>
+
+      <div class="faq-item">
+        <h3>¿En qué competencias juega <%= @team.name %>?</h3>
+        <p>
+          <% competitions = @upcoming_games.map(&:competition).compact.uniq %>
+          <% if competitions.any? %>
+            <%= @team.name %> tiene partidos en <%= competitions.map(&:name).to_sentence %>.
+          <% else %>
+            Consultá el fixture completo de <%= @team.name %> en esta página.
+          <% end %>
         </p>
       </div>
     </section>
@@ -106,16 +122,19 @@
 
 <script>
   function formatMainTime(date) {
-    return new Intl.DateTimeFormat("es-AR", {
-      timeZone: "America/Argentina/Buenos_Aires",      hour: "2-digit",      minute: "2-digit",      hour12: false
-    }).format(date);
-  }
+      return new Intl.DateTimeFormat(undefined, {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false
+      }).format(date);
+    }
 
-  function formatDate(date) {
-    return new Intl.DateTimeFormat("es-AR", {
-      timeZone: "America/Argentina/Buenos_Aires",      day: "2-digit",      month: "2-digit"
-    }).format(date);
-  }
+    function formatDate(date) {
+      return new Intl.DateTimeFormat(undefined, {
+        day: "2-digit",
+        month: "2-digit"
+      }).format(date);
+    }
 
   function countdownText(date) {
     const now = new Date();
