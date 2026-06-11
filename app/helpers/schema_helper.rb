@@ -38,6 +38,24 @@ module SchemaHelper
     }.to_json.html_safe
   end
 
+  def breadcrumb_schema(items)
+    # items: array of { name:, url: }
+    list = items.each_with_index.map do |item, i|
+      {
+        "@type": "ListItem",
+        position: i + 1,
+        name: item[:name],
+        item: item[:url]
+      }
+    end
+
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: list
+    }.to_json.html_safe
+  end
+
   def faq_schema_for_team(team, today_games: [], upcoming_games: [])
     tz = "America/Argentina/Buenos_Aires"
 

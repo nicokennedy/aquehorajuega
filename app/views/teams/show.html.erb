@@ -1,6 +1,12 @@
 <script type="application/ld+json">
   <%= faq_schema_for_team(@team, today_games: @today_games, upcoming_games: @upcoming_games) %>
 </script>
+<script type="application/ld+json">
+  <%= breadcrumb_schema([
+    { name: "Inicio", url: root_url(locale: I18n.locale) },
+    { name: "¿A qué hora juega #{@team.name}?", url: team_url(@team, locale: I18n.locale) }
+  ]) %>
+</script>
 
 <% content_for :title do %>
   <% if @upcoming_games.any? %>

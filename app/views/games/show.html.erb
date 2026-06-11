@@ -10,6 +10,13 @@
 <script type="application/ld+json">
   <%= sports_event_schema(@game) %>
 </script>
+<script type="application/ld+json">
+  <%= breadcrumb_schema([
+    { name: "Inicio", url: root_url(locale: I18n.locale) },
+    { name: @game.competition&.name, url: competition_url(@game.competition&.slug, locale: I18n.locale) },
+    { name: "#{@game.home_team.name} vs #{@game.away_team.name}", url: game_url(@game, locale: I18n.locale) }
+  ]) %>
+</script>
 
 
 <div class="page">

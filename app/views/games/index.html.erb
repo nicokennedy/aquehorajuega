@@ -52,6 +52,15 @@
 <% content_for :title, seo_title %>
 <% content_for :description, seo_description %>
 
+<% if @competition.present? %>
+<script type="application/ld+json">
+  <%= breadcrumb_schema([
+    { name: "Inicio", url: root_url(locale: I18n.locale) },
+    { name: @competition.name, url: competition_url(@competition.slug, locale: I18n.locale) }
+  ]) %>
+</script>
+<% end %>
+
 <% all_label = t("app.all", default: "Todos") %>
 <% current_name = @competition&.name || all_label %>
 
