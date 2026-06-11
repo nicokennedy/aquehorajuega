@@ -151,15 +151,6 @@
   </div>
 
     <% unless @competition.present? %>
-      <section class="section popular-teams-section">
-        <h2>Equipos más buscados</h2>
-
-        <div class="popular-teams-grid">
-          <% Team.where(name: ["Boca Juniors", "River Plate", "Flamengo", "Argentina"]).each do |team| %>
-            <%= link_to "¿A qué hora juega #{team.name}?", team_path(team, locale: I18n.locale), class: "popular-team-card" %>
-          <% end %>
-        </div>
-      </section>
     <% end %>
 
   <% if effective_tab == "groups" %>
