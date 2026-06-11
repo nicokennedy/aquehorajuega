@@ -12,7 +12,11 @@ module Promiedos
           c.name = competition_name
         end
 
-        competition.update!(name: competition_name) if competition.name != competition_name
+        competition.update!(
+          name: competition_name,
+          promiedos_id: league["promiedos_id"],
+          filter_keys: league["filter_keys"]
+        )
 
         league["games"].each do |game_data|
           sync_game(game_data, competition)
@@ -90,7 +94,8 @@ module Promiedos
         home_score: scores[0],
         away_score: scores[1],
         minute: data["game_time"],
-        stage: data["stage_round_name"]
+        stage: data["stage_round_name"],
+        filter_key: data["filter_key"]
       )
 
       game.save!

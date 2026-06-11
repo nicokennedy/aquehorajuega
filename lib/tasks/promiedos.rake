@@ -6,4 +6,8 @@ namespace :promiedos do
   task full_sync: :environment do
     Promiedos::FullSyncGames.new.call
   end
+
+  task sync_live: :environment do
+    Promiedos::LiveSyncGames.new.call
+  end
 end

@@ -37,28 +37,36 @@ module Promiedos
     private
 
     def scrape_league(league_config)
-      html = URI.open(league_config[:url]).read
-      doc = Nokogiri::HTML(html)
-
-      next_data = doc.at_css("#__NEXT_DATA__")
-      return [] unless next_data
-
-      json = JSON.parse(next_data.text)
-      data = json.dig("props", "pageProps", "data")
-      return [] unless data
-
-      league = data["league"]
-      filters = data.dig("games", "filters") || []
+      league, filters = fetch_league_meta(league_config)
+      return [] unless league
 
       games = filters.flat_map do |filter|
-        fetch_games_for_filter(league_config[:id], filter["key"])
+        fetch_games_for_filter(league_config[:id], filter["key"]).map do |game|
+          game.merge("filter_key" => filter["key"])
+        end
       end.uniq { |game| game["id"] }
 
       [{
         "name" => league["name"],
         "url_name" => league["url_name"],
+        "promiedos_id" => league_config[:id],
+        "filter_keys" => filters.map { |f| f["key"] }.reject { |k| k.blank? || k == "latest" },
         "games" => games
       }]
+    end
+
+    def fetch_league_meta(league_config)
+      html = URI.open(league_config[:url]).read
+      doc = Nokogiri::HTML(html)
+
+      next_data = doc.at_css("#__NEXT_DATA__")
+      return [nil, nil] unless next_data
+
+      json = JSON.parse(next_data.text)
+      data = json.dig("props", "pageProps", "data")
+      return [nil, nil] unless data
+
+      [data["league"], data.dig("games", "filters") || []]
     end
 
     def fetch_games_for_filter(league_id, filter_key)

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_05_18_215750) do
+ActiveRecord::Schema[7.1].define(version: 2026_06_11_222522) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -19,6 +19,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_05_18_215750) do
     t.string "slug"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "promiedos_id"
+    t.jsonb "filter_keys"
   end
 
   create_table "games", force: :cascade do |t|
@@ -38,6 +40,7 @@ ActiveRecord::Schema[7.1].define(version: 2026_05_18_215750) do
     t.bigint "competition_id"
     t.string "slug"
     t.string "external_id"
+    t.string "filter_key"
     t.index ["competition_id"], name: "index_games_on_competition_id"
     t.index ["external_id"], name: "index_games_on_external_id", unique: true
   end

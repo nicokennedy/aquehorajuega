@@ -6,6 +6,8 @@ Rails.application.routes.draw do
 
   post "/internal/promiedos/sync", to: "internal/promiedos#sync"
   get "/internal/promiedos/sync", to: "internal/promiedos#sync"
+  post "/internal/promiedos/sync_live", to: "internal/promiedos#sync_live"
+  get "/internal/promiedos/sync_live", to: "internal/promiedos#sync_live"
   post "/internal/promiedos/full_sync", to: "internal/promiedos#full_sync"
   get "/internal/promiedos/full_sync", to: "internal/promiedos#full_sync"
 
