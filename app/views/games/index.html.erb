@@ -1,52 +1,35 @@
 <% requested_tab = params[:tab].presence || "today" %>
-<% effective_tab = requested_tab == "today" && @today_games.empty? ? "upcoming" : requested_tab %>
+<% effective_tab = requested_tab == "today" && @today_games.blank? ? "upcoming" : requested_tab %>
 
 <%
-  seo_title =
-    if @competition.present?
-      case effective_tab
-      when "upcoming"
-        "Próximos partidos de #{@competition.name} | Horarios y fixture"
-      when "groups"
-        "Grupos y Tabla de Posiciones #{@competition.name} | Fixture por Grupo"
-      when "today"
-        "Partidos de hoy de #{@competition.name} | Horarios en vivo"
-      else
-        "Fixture #{@competition.name} | Partidos y horarios"
-      end
-    else
-      case effective_tab
-      when "upcoming"
-        "Próximos partidos de fútbol | Fixtures y horarios"
-      when "today"
-        "Partidos de hoy | Horarios y resultados en vivo"
-      else
-        "Partidos de fútbol y próximos fixtures | ¿A qué hora juega?"
-      end
-    end
+  comp = @competition&.name
 
-  seo_description =
-    if @competition.present?
-      case effective_tab
-      when "upcoming"
-        "Consultá los próximos partidos de #{@competition.name}, horarios locales, fixtures actualizados y resultados en vivo."
-      when "groups"
-        "Tabla de posiciones, fixture y resultados por grupo de #{@competition.name}. Horarios en tu país actualizados."
-      when "today"
-        "Mirá los partidos de hoy de #{@competition.name}, horarios locales y resultados en vivo."
-      else
-        "Consultá el fixture de #{@competition.name}, próximos partidos, horarios locales y resultados en vivo."
-      end
+  if @competition.present?
+    if effective_tab == "upcoming"
+      seo_title = t("app.seo.upcoming_competition", competition: comp)
+      seo_description = t("app.seo.desc_upcoming_competition", competition: comp)
+    elsif effective_tab == "groups"
+      seo_title = t("app.seo.groups_competition", competition: comp)
+      seo_description = t("app.seo.desc_groups_competition", competition: comp)
+    elsif effective_tab == "today"
+      seo_title = t("app.seo.today_competition", competition: comp)
+      seo_description = t("app.seo.desc_today_competition", competition: comp)
     else
-      case effective_tab
-      when "upcoming"
-        "Consultá próximos partidos de fútbol, fixtures actualizados y horarios locales."
-      when "today"
-        "Partidos de hoy, horarios locales y resultados en vivo de fútbol."
-      else
-        "Partidos de hoy, próximos fixtures, horarios locales y resultados en vivo de fútbol."
-      end
+      seo_title = t("app.seo.fixture_competition", competition: comp)
+      seo_description = t("app.seo.desc_fixture_competition", competition: comp)
     end
+  else
+    if effective_tab == "upcoming"
+      seo_title = t("app.seo.upcoming_all")
+      seo_description = t("app.seo.desc_upcoming_all")
+    elsif effective_tab == "today"
+      seo_title = t("app.seo.today_all")
+      seo_description = t("app.seo.desc_today_all")
+    else
+      seo_title = t("app.seo.default_all")
+      seo_description = t("app.seo.desc_default_all")
+    end
+  end
 %>
 
 <% content_for :title, seo_title %>
@@ -93,15 +76,14 @@
 
     <h1>
       <% if @competition.present? %>
-        <% case effective_tab %>
-        <% when "today" %>
-          Partidos de hoy de <%= @competition.name %>
-        <% when "upcoming" %>
-          Próximos partidos de <%= @competition.name %>
-        <% when "groups" %>
-          Tabla y grupos de <%= @competition.name %>
+        <% if effective_tab == "today" %>
+          <%= t("app.h1.today_competition", competition: @competition.name) %>
+        <% elsif effective_tab == "upcoming" %>
+          <%= t("app.h1.upcoming_competition", competition: @competition.name) %>
+        <% elsif effective_tab == "groups" %>
+          <%= t("app.h1.groups_competition", competition: @competition.name) %>
         <% else %>
-          Fixture de <%= @competition.name %>
+          <%= t("app.h1.fixture_competition", competition: @competition.name) %>
         <% end %>
       <% else %>
         <%= t("app.title") %>
@@ -261,7 +243,7 @@
   <% end %>
 
   <section class="seo-text">
-    <h2>Fixture de <%= current_name %></h2>
+    <h2><%= @competition.present? ? t("app.h1.fixture_section", competition: current_name) : t("app.title") %></h2>
 
     <p>
       Consultá todos los partidos de <%= current_name %> con horarios adaptados automáticamente a tu país.

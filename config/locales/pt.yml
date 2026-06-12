@@ -19,6 +19,28 @@ pt:
     view_full_fixture: "Ver tabela completa"
     no_live_games: "Não há jogos ao vivo."
     no_upcoming_games: "Não há próximos jogos."
+    h1:
+      today_competition: "Jogos de hoje de %{competition}"
+      upcoming_competition: "Próximos jogos de %{competition}"
+      groups_competition: "Grupos e classificação de %{competition}"
+      fixture_competition: "Tabela de %{competition}"
+      fixture_section: "Tabela de %{competition}"
+      fixture_section_desc: "Confira todos os jogos de %{competition} com horários adaptados automaticamente ao seu país."
+    seo:
+      upcoming_competition: "Próximos jogos de %{competition} | Horários e tabela"
+      groups_competition: "Grupos e classificação de %{competition} | Tabela por grupo"
+      today_competition: "Jogos de hoje de %{competition} | Horários ao vivo"
+      fixture_competition: "Tabela de %{competition} | Jogos e horários"
+      upcoming_all: "Próximos jogos de futebol | Tabelas e horários"
+      today_all: "Jogos de hoje | Horários e resultados ao vivo"
+      default_all: "Jogos de futebol e próximas tabelas | Que horas é o jogo?"
+      desc_upcoming_competition: "Confira os próximos jogos de %{competition}, horários locais, tabelas atualizadas e resultados ao vivo."
+      desc_groups_competition: "Classificação, tabela e resultados por grupo de %{competition}. Horários atualizados."
+      desc_today_competition: "Jogos de hoje de %{competition}, horários locais e resultados ao vivo."
+      desc_fixture_competition: "Confira a tabela de %{competition}, próximos jogos, horários locais e resultados ao vivo."
+      desc_upcoming_all: "Confira os próximos jogos de futebol, tabelas atualizadas e horários locais."
+      desc_today_all: "Jogos de hoje, horários locais e resultados ao vivo de futebol."
+      desc_default_all: "Jogos de hoje, próximas tabelas, horários locais e resultados ao vivo de futebol."
   date:
     day_names:
       - domingo

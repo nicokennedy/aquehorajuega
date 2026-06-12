@@ -19,6 +19,28 @@ en:
     view_full_fixture: "View full fixture"
     no_live_games: "No live matches."
     no_upcoming_games: "No upcoming matches."
+    h1:
+      today_competition: "Today's %{competition} matches"
+      upcoming_competition: "Upcoming %{competition} matches"
+      groups_competition: "%{competition} groups and standings"
+      fixture_competition: "%{competition} fixture"
+      fixture_section: "%{competition} fixture"
+      fixture_section_desc: "Check all %{competition} matches with schedules automatically adapted to your country."
+    seo:
+      upcoming_competition: "Upcoming %{competition} matches | Schedule and fixture"
+      groups_competition: "%{competition} Groups and standings | Group fixture"
+      today_competition: "Today's %{competition} matches | Live scores and schedule"
+      fixture_competition: "%{competition} fixture | Matches and schedule"
+      upcoming_all: "Upcoming soccer matches | Fixtures and schedules"
+      today_all: "Today's matches | Live scores and schedules"
+      default_all: "Soccer matches and upcoming fixtures | What time is the game?"
+      desc_upcoming_competition: "Check upcoming %{competition} matches, local schedules, updated fixtures and live scores."
+      desc_groups_competition: "Standings, fixture and results by group for %{competition}. Updated local schedules."
+      desc_today_competition: "Today's %{competition} matches, local schedules and live scores."
+      desc_fixture_competition: "Check the %{competition} fixture, upcoming matches, local schedules and live scores."
+      desc_upcoming_all: "Check upcoming soccer matches, updated fixtures and local schedules."
+      desc_today_all: "Today's matches, local schedules and live soccer scores."
+      desc_default_all: "Today's matches, upcoming fixtures, local schedules and live soccer scores."
   date:
     day_names:
       - Sunday

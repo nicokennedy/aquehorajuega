@@ -19,6 +19,29 @@ es:
     view_full_fixture: "Ver fixture completo"
     no_live_games: "No hay partidos en vivo."
     no_upcoming_games: "No hay próximos partidos."
+    h1:
+      today_competition: "Partidos de hoy de %{competition}"
+      upcoming_competition: "Próximos partidos de %{competition}"
+      groups_competition: "Tabla y grupos de %{competition}"
+      fixture_competition: "Fixture de %{competition}"
+      fixture_all: "Fixture de %{competition}"
+      fixture_section: "Fixture de %{competition}"
+      fixture_section_desc: "Consultá todos los partidos de %{competition} con horarios adaptados automáticamente a tu país."
+    seo:
+      upcoming_competition: "Próximos partidos de %{competition} | Horarios y fixture"
+      groups_competition: "Grupos y Tabla de Posiciones %{competition} | Fixture por Grupo"
+      today_competition: "Partidos de hoy de %{competition} | Horarios en vivo"
+      fixture_competition: "Fixture %{competition} | Partidos y horarios"
+      upcoming_all: "Próximos partidos de fútbol | Fixtures y horarios"
+      today_all: "Partidos de hoy | Horarios y resultados en vivo"
+      default_all: "Partidos de fútbol y próximos fixtures | ¿A qué hora juega?"
+      desc_upcoming_competition: "Consultá los próximos partidos de %{competition}, horarios locales, fixtures actualizados y resultados en vivo."
+      desc_groups_competition: "Tabla de posiciones, fixture y resultados por grupo de %{competition}. Horarios en tu país actualizados."
+      desc_today_competition: "Mirá los partidos de hoy de %{competition}, horarios locales y resultados en vivo."
+      desc_fixture_competition: "Consultá el fixture de %{competition}, próximos partidos, horarios locales y resultados en vivo."
+      desc_upcoming_all: "Consultá próximos partidos de fútbol, fixtures actualizados y horarios locales."
+      desc_today_all: "Partidos de hoy, horarios locales y resultados en vivo de fútbol."
+      desc_default_all: "Partidos de hoy, próximos fixtures, horarios locales y resultados en vivo de fútbol."
   date:
     day_names:
       - domingo

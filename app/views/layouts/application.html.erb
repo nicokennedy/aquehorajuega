@@ -28,7 +28,7 @@
     <meta name="twitter:title" content="<%= content_for?(:title) ? yield(:title) : "¿A qué hora juega?" %>">
     <meta name="twitter:description" content="<%= content_for?(:description) ? yield(:description) : "Partidos de hoy, fixture, horarios locales y resultados en vivo de fútbol. Mundial 2026, Libertadores, Sudamericana y más." %>">
     <% noindex_actions = %w[upcoming_competition today_competition groups] %>
-    <% if noindex_actions.include?(action_name) %>
+    <% if noindex_actions.include?(action_name) || params[:q].present? %>
       <meta name="robots" content="noindex, follow">
     <% end %>
     <link rel="canonical" href="<%= request.base_url + request.path %>">
