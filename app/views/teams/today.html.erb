@@ -2,24 +2,10 @@
   <%= faq_schema_for_team(@team, today_games: @today_games, upcoming_games: [@next_game].compact) %>
 </script>
 
-<% content_for :title do %>
-  <% if @today_games.any? %>
-    ¿A qué hora juega <%= @team.name %> hoy? | <%= @today_games.first.starts_at.in_time_zone("America/Argentina/Buenos_Aires").strftime("%-d/%-m - %H:%Mhs") %>
-  <% elsif @next_game.present? %>
-    ¿A qué hora juega <%= @team.name %>? | Próximo <%= @next_game.starts_at.in_time_zone("America/Argentina/Buenos_Aires").strftime("%-d/%-m") %>
-  <% else %>
-    ¿A qué hora juega <%= @team.name %>? | Fixture y horarios
-  <% end %>
+<% content_for :title do -%>¿A qué hora juega <%= @team.name %><% if @today_games.any? %> hoy? | <%= @today_games.first.starts_at.in_time_zone("America/Argentina/Buenos_Aires").strftime("%-d/%-m - %H:%Mhs") %><% elsif @next_game.present? %>? | Próximo <%= @next_game.starts_at.in_time_zone("America/Argentina/Buenos_Aires").strftime("%-d/%-m") %><% else %>? | Fixture y horarios<% end -%>
 <% end %>
 
-<% content_for :description do %>
-  <% if @today_games.any? %>
-    <%= "#{@team.name} juega hoy a las #{@today_games.first.starts_at.in_time_zone("America/Argentina/Buenos_Aires").strftime("%H:%M")}hs. Horario en tu país, TV en vivo y más info del partido." %>
-  <% elsif @next_game.present? %>
-    <%= "#{@team.name} no juega hoy. Próximo partido: #{@next_game.starts_at.in_time_zone("America/Argentina/Buenos_Aires").strftime("%-d de %B")}. Fixture y horario local." %>
-  <% else %>
-    <%= "Fixture completo de #{@team.name}, horarios en tu país y resultados en vivo." %>
-  <% end %>
+<% content_for :description do -%><% if @today_games.any? %><%= "#{@team.name} juega hoy a las #{@today_games.first.starts_at.in_time_zone("America/Argentina/Buenos_Aires").strftime("%H:%M")}hs. Horario en tu país, TV en vivo y más info del partido." %><% elsif @next_game.present? %><%= "#{@team.name} no juega hoy. Próximo partido: #{I18n.l(@next_game.starts_at.in_time_zone("America/Argentina/Buenos_Aires").to_date, format: :long)}. Fixture y horario local." %><% else %><%= "Fixture completo de #{@team.name}, horarios en tu país y resultados en vivo." %><% end -%>
 <% end %>
 
 <div class="page">
