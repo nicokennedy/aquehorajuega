@@ -1,11 +1,37 @@
+<%
+  today_game = @today_games.first
+  today_rival = rival_name_for(today_game, @team)
+  next_rival  = rival_name_for(@next_game, @team)
+%>
+
 <script type="application/ld+json">
   <%= faq_schema_for_team(@team, today_games: @today_games, upcoming_games: [@next_game].compact) %>
 </script>
 
-<% content_for :title do -%>¿A qué hora juega <%= @team.name %><% if @today_games.any? %> hoy? | <%= @today_games.first.starts_at.in_time_zone("America/Argentina/Buenos_Aires").strftime("%-d/%-m - %H:%Mhs") %><% elsif @next_game.present? %>? | Próximo <%= @next_game.starts_at.in_time_zone("America/Argentina/Buenos_Aires").strftime("%-d/%-m") %><% else %>? | Fixture y horarios<% end -%>
+<% if today_game.present? %>
+  <script type="application/ld+json">
+    <%= sports_event_schema(today_game) %>
+  </script>
 <% end %>
 
-<% content_for :description do -%><% if @today_games.any? %><%= "#{@team.name} juega hoy a las #{@today_games.first.starts_at.in_time_zone("America/Argentina/Buenos_Aires").strftime("%H:%M")}hs. Horario en tu país, TV en vivo y más info del partido." %><% elsif @next_game.present? %><%= "#{@team.name} no juega hoy. Próximo partido: #{@next_game.starts_at.in_time_zone("America/Argentina/Buenos_Aires").strftime("%-d/%-m")}. Fixture y horario local." %><% else %><%= "Fixture completo de #{@team.name}, horarios en tu país y resultados en vivo." %><% end -%>
+<% content_for :title do -%>
+<% if today_game.present? -%>
+¿A qué hora juega <%= @team.name %> hoy? | <%= hora_argentina(today_game.starts_at) %>hs<% if today_rival %> vs <%= today_rival %><% end -%>
+<% elsif @next_game.present? -%>
+¿A qué hora juega <%= @team.name %>? | Próximo <%= fecha_en_español(@next_game.starts_at) %><% if next_rival %> vs <%= next_rival %><% end -%>
+<% else -%>
+¿A qué hora juega <%= @team.name %>? | Fixture y horarios
+<% end -%>
+<% end %>
+
+<% content_for :description do -%>
+<% if today_game.present? -%>
+<%= @team.name %> juega hoy a las <%= hora_argentina(today_game.starts_at) %>hs (Argentina)<% if today_rival %> contra <%= today_rival %><% end %>. Horario en tu país y dónde verlo.
+<% elsif @next_game.present? -%>
+Próximo partido de <%= @team.name %>: <%= fecha_en_español(@next_game.starts_at) %><% if next_rival %> vs <%= next_rival %><% end %>. Horario local y fixture completo.
+<% else -%>
+Fixture completo de <%= @team.name %>, horarios en tu país y resultados en vivo.
+<% end -%>
 <% end %>
 
 <div class="page">

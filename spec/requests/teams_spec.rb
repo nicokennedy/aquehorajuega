@@ -1,0 +1,130 @@
+require "rails_helper"
+
+RSpec.describe "Teams", type: :request do
+  ENGLISH_MONTHS = /\b(January|February|March|April|May|June|July|August|September|October|November|December)\b/
+
+  let(:tz) { ActiveSupport::TimeZone["America/Argentina/Buenos_Aires"] }
+  let(:competition) { Competition.create!(name: "Mundial 2026", slug: "mundial-2026") }
+
+  let(:brasil)    { Team.create!(name: "Brasil") }
+  let(:argentina) { Team.create!(name: "Argentina") }
+
+  # Extrae el contenido del <title> aunque tenga saltos de línea alrededor.
+  def title_text(body)
+    body[/<title>(.*?)<\/title>/m, 1].to_s.strip
+  end
+
+  describe "GET /es/teams/brasil/today" do
+    context "cuando Brasil juega hoy" do
+      before do
+        Game.create!(
+          home_team: brasil,
+          away_team: argentina,
+          competition: competition,
+          status: "scheduled",
+          starts_at: tz.now.change(hour: 12),
+          stadium: "Maracaná",
+          city: "Río de Janeiro"
+        )
+      end
+
+      it "devuelve 200" do
+        get "/es/teams/brasil/today"
+        expect(response).to have_http_status(:ok)
+      end
+
+      it "incluye schema JSON-LD (application/ld+json)" do
+        get "/es/teams/brasil/today"
+        expect(response.body).to include("application/ld+json")
+      end
+
+      it "incluye el SportsEvent schema con datos del partido" do
+        get "/es/teams/brasil/today"
+        expect(response.body).to include("SportsEvent")
+        expect(response.body).to include("Maracaná")
+      end
+
+      it "NO contiene 'Translation missing'" do
+        get "/es/teams/brasil/today"
+        expect(response.body).not_to match(/Translation missing/i)
+      end
+
+      it "NO contiene meses en inglés" do
+        get "/es/teams/brasil/today"
+        expect(response.body).not_to match(ENGLISH_MONTHS)
+      end
+
+      it "tiene un <title> no vacío" do
+        get "/es/teams/brasil/today"
+        expect(title_text(response.body)).to be_present
+      end
+
+      it "tiene una meta description no vacía ni con Translation missing" do
+        get "/es/teams/brasil/today"
+        desc = response.body[/<meta name="description" content="(.*?)">/, 1].to_s
+        expect(desc).to be_present
+        expect(desc).not_to match(/Translation missing/i)
+      end
+    end
+
+    context "cuando Brasil NO juega hoy pero tiene próximo partido" do
+      before do
+        Game.create!(
+          home_team: brasil,
+          away_team: argentina,
+          competition: competition,
+          status: "scheduled",
+          starts_at: tz.now.change(hour: 12) + 40.days
+        )
+      end
+
+      it "devuelve 200 y no explota" do
+        get "/es/teams/brasil/today"
+        expect(response).to have_http_status(:ok)
+      end
+
+      it "muestra la fecha en español, nunca en inglés" do
+        get "/es/teams/brasil/today"
+        expect(response.body).not_to match(ENGLISH_MONTHS)
+        expect(response.body).not_to match(/Translation missing/i)
+      end
+
+      it "tiene un <title> no vacío" do
+        get "/es/teams/brasil/today"
+        expect(title_text(response.body)).to be_present
+      end
+    end
+
+    context "cuando Brasil no tiene ningún partido" do
+      before { brasil }
+
+      it "devuelve 200 con title y description válidos" do
+        get "/es/teams/brasil/today"
+        expect(response).to have_http_status(:ok)
+        expect(title_text(response.body)).to be_present
+        expect(response.body).not_to match(/Translation missing/i)
+        expect(response.body).not_to match(ENGLISH_MONTHS)
+      end
+    end
+  end
+
+  describe "GET /es/teams/brasil (show / fixture)" do
+    before do
+      Game.create!(
+        home_team: brasil,
+        away_team: argentina,
+        competition: competition,
+        status: "scheduled",
+        starts_at: tz.now.change(hour: 12) + 40.days
+      )
+    end
+
+    it "devuelve 200 sin meses en inglés ni translation missing" do
+      get "/es/teams/brasil"
+      expect(response).to have_http_status(:ok)
+      expect(response.body).not_to match(ENGLISH_MONTHS)
+      expect(response.body).not_to match(/Translation missing/i)
+      expect(title_text(response.body)).to be_present
+    end
+  end
+end
