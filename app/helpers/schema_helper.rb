@@ -64,7 +64,7 @@ module SchemaHelper
     else
       next_game = upcoming_games.first
       if next_game
-        mes = I18n.t("date.month_names")[next_game.starts_at.in_time_zone(tz).month]
+        mes = I18n.t("date.month_names").compact[g.starts_at.in_time_zone(tz).month - 1]
         fecha = "#{next_game.starts_at.in_time_zone(tz).day} de #{mes}"
         "#{team.name} no juega hoy. Su próximo partido es el #{fecha}."
       else
@@ -75,7 +75,7 @@ module SchemaHelper
     next_answer = if upcoming_games.any?
       g = upcoming_games.first
       rival = g.home_team == team ? g.away_team.name : g.home_team.name
-      mes = I18n.t("date.month_names")[g.starts_at.in_time_zone(tz).month]
+      mes = I18n.t("date.month_names").compact[g.starts_at.in_time_zone(tz).month - 1]
       hora = g.starts_at.in_time_zone(tz).strftime("%H:%M")
       fecha = "#{g.starts_at.in_time_zone(tz).day} de #{mes} a las #{hora}"
       "El próximo partido de #{team.name} es contra #{rival} el #{fecha}hs (hora Argentina)."
