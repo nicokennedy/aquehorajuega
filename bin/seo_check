@@ -1,0 +1,52 @@
+#!/bin/bash
+# Verificar que las páginas críticas no tienen errores SEO.
+# Uso: bin/seo_check            -> chequea producción (https://aquehorajuega.pro)
+#      BASE_URL=http://localhost:3000 bin/seo_check  -> chequea otro host
+#
+# Pensado para correr después de cada deploy.
+
+BASE_URL="${BASE_URL:-https://aquehorajuega.pro}"
+TEAMS=("brasil" "argentina" "uruguay" "ecuador" "paraguay")
+ENGLISH_MONTHS="January|February|March|April|May|June|July|August|September|October|November|December"
+ERRORS=0
+
+for team in "${TEAMS[@]}"; do
+  URL="$BASE_URL/es/teams/$team/today"
+  BODY=$(curl -s -L "$URL")
+  TEAM_ERRORS=0
+
+  if [ -z "$BODY" ]; then
+    echo "❌ $team: respuesta vacía ($URL)"
+    ERRORS=$((ERRORS + 1))
+    continue
+  fi
+
+  if echo "$BODY" | grep -qi "Translation missing"; then
+    echo "❌ $team: Translation missing encontrado"
+    TEAM_ERRORS=$((TEAM_ERRORS + 1))
+  fi
+
+  if echo "$BODY" | grep -qE "$ENGLISH_MONTHS"; then
+    echo "❌ $team: Mes en inglés encontrado"
+    TEAM_ERRORS=$((TEAM_ERRORS + 1))
+  fi
+
+  TITLE=$(echo "$BODY" | grep -o '<title>[^<]*</title>')
+  if [ -z "$TITLE" ] || [ "$TITLE" = "<title></title>" ]; then
+    echo "❌ $team: Title vacío"
+    TEAM_ERRORS=$((TEAM_ERRORS + 1))
+  fi
+
+  if [ "$TEAM_ERRORS" -eq 0 ]; then
+    echo "✅ $team: OK"
+  else
+    ERRORS=$((ERRORS + TEAM_ERRORS))
+  fi
+done
+
+if [ "$ERRORS" -gt 0 ]; then
+  echo "⚠️  $ERRORS errores encontrados"
+  exit 1
+fi
+
+echo "🟢 Todo OK"
