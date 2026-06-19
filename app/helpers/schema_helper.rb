@@ -65,7 +65,7 @@ module SchemaHelper
     else
       next_game = upcoming_games.first
       if next_game
-        fecha = next_game.starts_at.in_time_zone(tz).strftime("%-d de %B")
+        fecha = I18n.l(next_game.starts_at.in_time_zone(tz), format: "%d de %B").lstrip
         "#{team.name} no juega hoy. Su próximo partido es el #{fecha}."
       else
         "#{team.name} no tiene partidos programados por el momento."
@@ -75,7 +75,7 @@ module SchemaHelper
     next_answer = if upcoming_games.any?
       g = upcoming_games.first
       rival = g.home_team == team ? g.away_team.name : g.home_team.name
-      fecha = g.starts_at.in_time_zone(tz).strftime("%-d de %B a las %H:%M")
+      fecha = I18n.l(g.starts_at.in_time_zone(tz), format: "%-d de %B a las %H:%M")
       "El próximo partido de #{team.name} es contra #{rival} el #{fecha}hs (hora Argentina)."
     else
       "No hay próximos partidos cargados para #{team.name}."
