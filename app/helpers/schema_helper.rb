@@ -39,7 +39,6 @@ module SchemaHelper
   end
 
   def breadcrumb_schema(items)
-    # items: array of { name:, url: }
     list = items.each_with_index.map do |item, i|
       {
         "@type": "ListItem",
@@ -65,7 +64,8 @@ module SchemaHelper
     else
       next_game = upcoming_games.first
       if next_game
-        fecha = I18n.l(next_game.starts_at.in_time_zone(tz), format: "%d de %B").lstrip
+        mes = I18n.t("date.month_names")[next_game.starts_at.in_time_zone(tz).month]
+        fecha = "#{next_game.starts_at.in_time_zone(tz).day} de #{mes}"
         "#{team.name} no juega hoy. Su próximo partido es el #{fecha}."
       else
         "#{team.name} no tiene partidos programados por el momento."
@@ -75,7 +75,9 @@ module SchemaHelper
     next_answer = if upcoming_games.any?
       g = upcoming_games.first
       rival = g.home_team == team ? g.away_team.name : g.home_team.name
-      fecha = I18n.l(g.starts_at.in_time_zone(tz), format: "%-d de %B a las %H:%M")
+      mes = I18n.t("date.month_names")[g.starts_at.in_time_zone(tz).month]
+      hora = g.starts_at.in_time_zone(tz).strftime("%H:%M")
+      fecha = "#{g.starts_at.in_time_zone(tz).day} de #{mes} a las #{hora}"
       "El próximo partido de #{team.name} es contra #{rival} el #{fecha}hs (hora Argentina)."
     else
       "No hay próximos partidos cargados para #{team.name}."
