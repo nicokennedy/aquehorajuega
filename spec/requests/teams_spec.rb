@@ -108,6 +108,33 @@ RSpec.describe "Teams", type: :request do
     end
   end
 
+  describe "equipos con acento/ñ en el nombre (links internos no rotos)" do
+    let!(:paises_bajos) { Team.create!(name: "Países Bajos") }
+
+    it "el slug generado por to_param no tiene acentos" do
+      expect(paises_bajos.to_param).to eq("paises-bajos")
+    end
+
+    it "GET /es/teams/paises-bajos/today devuelve 200 (no 404)" do
+      Game.create!(
+        home_team: paises_bajos,
+        away_team: Team.create!(name: "Suecia"),
+        competition: competition,
+        status: "scheduled",
+        starts_at: tz.now.change(hour: 14)
+      )
+
+      get "/es/teams/paises-bajos/today"
+      expect(response).to have_http_status(:ok)
+      expect(response.body).to include("Países Bajos")
+    end
+
+    it "GET /es/teams/paises-bajos (show) devuelve 200 (no 404)" do
+      get "/es/teams/paises-bajos"
+      expect(response).to have_http_status(:ok)
+    end
+  end
+
   describe "GET /es/teams/brasil (show / fixture)" do
     before do
       Game.create!(
