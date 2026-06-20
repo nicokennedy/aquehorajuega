@@ -29,7 +29,7 @@
     <% if noindex_actions.include?(action_name) || params[:q].present? %>
       <meta name="robots" content="noindex, follow">
     <% end %>
-    <link rel="canonical" href="<%= request.base_url + request.path %>">
+    <link rel="canonical" href="<%= request.base_url + request.path.split('?').first %>">
     <link rel="alternate" hreflang="es" href="<%= request.base_url + request.path.gsub(/^\/(es|en|pt)\//, '/es/') %>">
     <link rel="alternate" hreflang="en" href="<%= request.base_url + request.path.gsub(/^\/(es|en|pt)\//, '/en/') %>">
     <link rel="alternate" hreflang="pt" href="<%= request.base_url + request.path.gsub(/^\/(es|en|pt)\//, '/pt/') %>">
