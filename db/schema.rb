@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_06_11_222522) do
+ActiveRecord::Schema[7.1].define(version: 2026_06_20_081210) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -54,6 +54,8 @@ ActiveRecord::Schema[7.1].define(version: 2026_06_11_222522) do
     t.string "primary_color"
     t.string "secondary_color"
     t.string "promiedos_id"
+    t.string "slug"
+    t.index ["slug"], name: "index_teams_on_slug"
   end
 
   add_foreign_key "games", "competitions"

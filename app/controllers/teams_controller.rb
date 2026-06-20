@@ -1,6 +1,6 @@
 class TeamsController < ApplicationController
   def show
-    @team = Team.find_by!("LOWER(REPLACE(name, ' ', '-')) = ?", params[:id].downcase)
+    @team = Team.find_by_slug!(params[:id])
 
     argentina_zone = Time.find_zone!("America/Argentina/Buenos_Aires")
     argentina_now = argentina_zone.now
@@ -35,7 +35,7 @@ class TeamsController < ApplicationController
   end
 
   def today
-    @team = Team.find_by!("LOWER(REPLACE(name, ' ', '-')) = ?", params[:id].downcase)
+    @team = Team.find_by_slug!(params[:id])
 
     argentina_zone = Time.find_zone!("America/Argentina/Buenos_Aires")
     argentina_now = argentina_zone.now
