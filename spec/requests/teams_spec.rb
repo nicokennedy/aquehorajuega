@@ -147,10 +147,9 @@ RSpec.describe "Teams", type: :request do
       expect(canonical).to end_with("/es/teams/brasil")
     end
 
-    # Nota: el redirect 301 por trailing slash se testea en
-    # spec/controllers/application_controller_spec.rb porque el harness de
-    # request specs normaliza el path (le saca el "/" final) antes de llegar
-    # al controller. En producción el browser sí manda el slash y redirige.
+    # Nota: el trailing slash lo normaliza Rails (request.path llega sin el
+    # "/" final), así que la URL con slash devuelve el mismo contenido y el
+    # canonical apunta a la versión sin slash -> sin duplicados para Google.
   end
 
   describe "GET /es/teams/brasil (show / fixture)" do
