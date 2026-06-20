@@ -9,12 +9,16 @@
 </script>
 
 <%
-  next_up    = @upcoming_games.first
-  next_rival = rival_name_for(next_up, @team)
+  today_game  = @today_games.first
+  today_rival = rival_name_for(today_game, @team)
+  next_up     = @upcoming_games.first
+  next_rival  = rival_name_for(next_up, @team)
 %>
 
 <% content_for :title do -%>
-<% if next_up.present? -%>
+<% if today_game.present? -%>
+¿A qué hora juega <%= @team.name %> hoy? | Hoy <%= hora_argentina(today_game.starts_at) %>hs<% if today_rival %> vs <%= today_rival %><% end -%>
+<% elsif next_up.present? -%>
 ¿A qué hora juega <%= @team.name %>? | Próximo <%= fecha_en_español(next_up.starts_at) %><% if next_rival %> vs <%= next_rival %><% end -%>
 <% else -%>
 ¿A qué hora juega <%= @team.name %>? | Fixture y horarios
@@ -22,7 +26,9 @@
 <% end %>
 
 <% content_for :description do -%>
-<% if next_up.present? -%>
+<% if today_game.present? -%>
+<%= @team.name %> juega hoy a las <%= hora_argentina(today_game.starts_at) %>hs<% if today_rival %> vs <%= today_rival %><% end %>. Horario en tu país y fixture completo.
+<% elsif next_up.present? -%>
 Próximo partido de <%= @team.name %>: <%= fecha_en_español(next_up.starts_at) %><% if next_rival %> vs <%= next_rival %><% end %> a las <%= hora_argentina(next_up.starts_at) %>hs. Fixture completo y horario en tu país.
 <% else -%>
 Fixture completo de <%= @team.name %>, horarios en tu país y resultados en vivo.
@@ -87,7 +93,7 @@ Fixture completo de <%= @team.name %>, horarios en tu país y resultados en vivo
         <h3>¿A qué hora juega <%= @team.name %> hoy?</h3>
         <p>
           <% if @today_games.any? %>
-            <%= @team.name %> juega hoy a las <%= @today_games.first.starts_at.in_time_zone("America/Argentina/Buenos_Aires").strftime("%H:%M") %>hs (hora Argentina). El horario en tu país se muestra arriba automáticamente.
+            <%= @team.name %> juega hoy a las <%= hora_argentina(@today_games.first.starts_at) %>hs. El horario en tu país se muestra arriba automáticamente.
           <% else %>
             <%= @team.name %> no juega hoy.
             <% if @upcoming_games.any? %>
