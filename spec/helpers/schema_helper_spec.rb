@@ -102,6 +102,16 @@ RSpec.describe SchemaHelper, type: :helper do
       expect(@json).not_to match(/Translation missing/i)
     end
 
+    it "incluye 'hora Argentina' cuando el equipo juega hoy" do
+      json = helper.faq_schema_for_team(team, today_games: [game_at], upcoming_games: [])
+      expect(json).to include("hora Argentina / horario según tu país arriba")
+    end
+
+    it "incluye 'hora Argentina' en la respuesta del próximo partido (sin partido hoy)" do
+      json = helper.faq_schema_for_team(team, today_games: [], upcoming_games: [game_at(month: 8, day: 3)])
+      expect(json).to include("hora Argentina / horario según tu país arriba")
+    end
+
     it "genera JSON-LD válido y parseable" do
       json = helper.faq_schema_for_team(team, today_games: [game_at], upcoming_games: [game_at(month: 8, day: 3)])
       parsed = JSON.parse(json)

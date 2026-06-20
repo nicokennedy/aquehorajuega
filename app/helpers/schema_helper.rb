@@ -114,7 +114,7 @@ module SchemaHelper
         g = today_games.first
         rival = rival_name_for(g, team)
         hora = hora_argentina(g.starts_at, tz)
-        base = "Sí, #{team.name} juega hoy a las #{hora}hs (hora Argentina)"
+        base = "Sí, #{team.name} juega hoy a las #{hora}hs (hora Argentina / horario según tu país arriba)"
         rival ? "#{base} contra #{rival}." : "#{base}."
       elsif next_game
         fecha = fecha_en_español(next_game.starts_at, tz)
@@ -129,7 +129,7 @@ module SchemaHelper
         fecha = fecha_en_español(next_game.starts_at, tz)
         hora = hora_argentina(next_game.starts_at, tz)
         rival_txt = rival ? " contra #{rival}" : ""
-        "El próximo partido de #{team.name} es#{rival_txt} el #{fecha} a las #{hora}hs (hora Argentina)."
+        "El próximo partido de #{team.name} es#{rival_txt} el #{fecha} a las #{hora}hs (hora Argentina / horario según tu país arriba)."
       else
         "No hay próximos partidos cargados para #{team.name}."
       end

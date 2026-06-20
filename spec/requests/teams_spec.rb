@@ -135,6 +135,24 @@ RSpec.describe "Teams", type: :request do
     end
   end
 
+  describe "canonical URLs" do
+    before { brasil }
+
+    it "el <link rel=canonical> no incluye query string" do
+      get "/es/teams/brasil?utm_source=google&x=1"
+      expect(response).to have_http_status(:ok)
+      canonical = response.body[/<link rel="canonical" href="([^"]*)"/, 1]
+      expect(canonical).to be_present
+      expect(canonical).not_to include("?")
+      expect(canonical).to end_with("/es/teams/brasil")
+    end
+
+    # Nota: el redirect 301 por trailing slash se testea en
+    # spec/controllers/application_controller_spec.rb porque el harness de
+    # request specs normaliza el path (le saca el "/" final) antes de llegar
+    # al controller. En producción el browser sí manda el slash y redirige.
+  end
+
   describe "GET /es/teams/brasil (show / fixture)" do
     before do
       Game.create!(
