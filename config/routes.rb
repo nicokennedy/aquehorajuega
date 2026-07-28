@@ -1,9 +1,6 @@
 Rails.application.routes.draw do
   get "/sitemap.xml", to: redirect("/sitemap.xml.gz")
 
-  get 'dates/show'
-  get 'teams/show'
-
   post "/internal/promiedos/sync", to: "internal/promiedos#sync"
   get "/internal/promiedos/sync", to: "internal/promiedos#sync"
   post "/internal/promiedos/sync_live", to: "internal/promiedos#sync_live"
@@ -25,10 +22,17 @@ Rails.application.routes.draw do
 
     get "/:competition", to: "games#index", as: :competition
 
-    resources :games, only: [:show]
+    resources :games, only: [:show] do
+      member do
+        get :calendar
+      end
+    end
     resources :teams, only: [:show] do
       member do
-        get :today
+        get :calendar
+        get :today, to: redirect { |params, _request|
+          "/#{params[:locale] || I18n.default_locale}/teams/#{params[:id]}"
+        }
       end
     end
   end

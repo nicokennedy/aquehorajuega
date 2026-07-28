@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2026_06_20_081210) do
+ActiveRecord::Schema[7.1].define(version: 2026_07_28_000003) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -41,8 +41,25 @@ ActiveRecord::Schema[7.1].define(version: 2026_06_20_081210) do
     t.string "slug"
     t.string "external_id"
     t.string "filter_key"
+    t.index ["away_team_id", "starts_at"], name: "index_games_on_away_team_and_starts_at"
+    t.index ["competition_id", "starts_at"], name: "index_games_on_competition_and_starts_at"
     t.index ["competition_id"], name: "index_games_on_competition_id"
     t.index ["external_id"], name: "index_games_on_external_id", unique: true
+    t.index ["home_team_id", "starts_at"], name: "index_games_on_home_team_and_starts_at"
+    t.index ["status", "starts_at"], name: "index_games_on_status_and_starts_at"
+  end
+
+  create_table "synchronization_runs", force: :cascade do |t|
+    t.string "kind", null: false
+    t.string "status", null: false
+    t.datetime "started_at", null: false
+    t.datetime "finished_at"
+    t.integer "duration_ms"
+    t.integer "processed_games", default: 0, null: false
+    t.text "error_message"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["kind", "status", "finished_at"], name: "index_sync_runs_on_kind_status_finished"
   end
 
   create_table "teams", force: :cascade do |t|

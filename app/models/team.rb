@@ -1,4 +1,6 @@
 class Team < ApplicationRecord
+  RECENT_RESULT_WINDOW = Game::RETENTION_WINDOW
+
   has_many :home_games, class_name: "Game", foreign_key: "home_team_id"
   has_many :away_games, class_name: "Game", foreign_key: "away_team_id"
 
@@ -19,7 +21,16 @@ class Team < ApplicationRecord
   end
 
   def games
-    Game.where("home_team_id = :id OR away_team_id = :id", id: id)
+    Game.for_team(self)
+  end
+
+  def indexable?(now: Time.current)
+    games.where(status: Game::UPCOMING_STATUSES + ["live"]).where("starts_at >= ?", now).exists? ||
+      games.where(status: "finished", starts_at: RECENT_RESULT_WINDOW.ago(now)..now).exists?
+  end
+
+  def seo_last_modified_at
+    games.maximum(:updated_at) || updated_at
   end
 
   def national_team?

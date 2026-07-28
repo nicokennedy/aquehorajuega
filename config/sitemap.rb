@@ -1,34 +1,16 @@
 SitemapGenerator::Sitemap.default_host = "https://aquehorajuega.pro"
 
-priority_slugs = [
-  "world-cup-2026",
-  "libertadores",
-  "sudamericana",
-  "liga-profesional",
-  "champions-league"
-]
-
 SitemapGenerator::Sitemap.create do
   add root_path(locale: :es), changefreq: "daily", priority: 1.0
   add today_games_page_path(locale: :es), changefreq: "daily", priority: 0.95
   add upcoming_games_page_path(locale: :es), changefreq: "daily", priority: 0.9
 
-  Competition.where(slug: priority_slugs).find_each do |competition|
+  Competition.where(slug: Competition::INDEXABLE_SLUGS).find_each do |competition|
+    next unless competition.indexable?
+
     add competition_path(locale: :es, competition: competition.slug),
         changefreq: "daily",
         priority: 0.85
-
-    add competition_today_path(locale: :es, competition: competition.slug),
-        changefreq: "daily",
-        priority: 0.85
-
-    add competition_upcoming_path(locale: :es, competition: competition.slug),
-        changefreq: "daily",
-        priority: 0.8
-
-    add competition_groups_path(locale: :es, competition: competition.slug),
-        changefreq: "daily",
-        priority: 0.7
   end
 
   Team.find_each do |team|
@@ -38,16 +20,12 @@ SitemapGenerator::Sitemap.create do
     next if team_name.include?("match")
     next if team_name.include?("runner")
     next if team_name.include?("3rd place")
+    next unless team.indexable?
 
     add team_path(locale: :es, id: team),
-        lastmod: team.updated_at,
+        lastmod: team.seo_last_modified_at,
         changefreq: "daily",
         priority: 0.85
-
-    add today_team_path(locale: :es, id: team),
-        lastmod: team.updated_at,
-        changefreq: "daily",
-        priority: 0.9
   end
 
   Game.includes(:home_team, :away_team, :competition)
@@ -68,7 +46,7 @@ SitemapGenerator::Sitemap.create do
 
   Game.where("starts_at >= ?", 7.days.ago)
       .where("starts_at <= ?", 60.days.from_now)
-      .select("DATE(starts_at) as game_date")
+      .select("DATE(starts_at AT TIME ZONE 'America/Argentina/Buenos_Aires') as game_date")
       .distinct
       .each do |row|
 

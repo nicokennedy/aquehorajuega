@@ -1,4 +1,6 @@
 class GamesController < ApplicationController
+  before_action :redirect_legacy_competition_slug, if: -> { params[:competition].present? }
+
   def index
     if action_name == "index"
       if params[:tab] == "upcoming" && params[:competition].present?
@@ -25,13 +27,7 @@ class GamesController < ApplicationController
       Team.none
     end
 
-    allowed_slugs = [
-      "world-cup-2026",
-      "libertadores",
-      "sudamericana",
-      "liga-profesional",
-      "champions-league"
-    ]
+    allowed_slugs = Competition::INDEXABLE_SLUGS
 
     @competitions = Competition
       .where(slug: allowed_slugs)
@@ -42,8 +38,9 @@ class GamesController < ApplicationController
           WHEN 'libertadores' THEN 2
           WHEN 'sudamericana' THEN 3
           WHEN 'liga-profesional' THEN 4
-          WHEN 'champions-league' THEN 5
-          ELSE 6 END"
+          WHEN 'copa-argentina' THEN 5
+          WHEN 'champions-league' THEN 6
+          ELSE 7 END"
         )
       )
 
@@ -66,46 +63,65 @@ class GamesController < ApplicationController
     priority_competitions = allowed_slugs
 
     priority_sql = <<~SQL
-      CASE
-        WHEN competitions.slug IN (#{priority_competitions.map { |s| "'#{s}'" }.join(",")})
-        THEN 0
-        ELSE 1
+      CASE competitions.slug
+        WHEN 'liga-profesional' THEN 0
+        WHEN 'copa-argentina' THEN 1
+        WHEN 'libertadores' THEN 2
+        WHEN 'sudamericana' THEN 3
+        WHEN 'champions-league' THEN 4
+        ELSE 5
       END
     SQL
 
     today_range = argentina_now.beginning_of_day.utc..argentina_now.end_of_day.utc
 
     today_base = base_games
-      .joins(:competition)
+      .left_joins(:competition)
       .where(starts_at: today_range)
-      .where(competitions: { slug: priority_competitions })
 
     @today_games = today_base.order(
       Arel.sql(
         <<~SQL
-          CASE
-            WHEN games.status = 'live' THEN 0
-            WHEN games.status = 'scheduled' THEN 1
-            WHEN games.status = 'finished' THEN 2
-            ELSE 3
-          END,
           #{priority_sql},
           games.starts_at ASC
         SQL
       )
-    )
+    ).limit(60)
 
+    upcoming_threshold = @competition.present? ? argentina_now.end_of_day.utc : now
     @upcoming_games = base_games
       .joins(:competition)
+      .where(status: Game::UPCOMING_STATUSES)
       .where(competitions: { slug: priority_competitions })
-      .where("starts_at > ?", now)
+      .where("starts_at > ?", upcoming_threshold)
       .order(Arel.sql("#{priority_sql}, games.starts_at ASC"))
+      .limit(@competition.present? ? 10 : 100)
+
+    @recent_games = base_games
+      .joins(:competition)
+      .where(competitions: { slug: priority_competitions })
+      .recent_results(now)
+      .reverse_chronological
+      .limit(@competition.present? ? 5 : 20)
 
     @live_games = @today_games.select(&:live?)
     @groups = []
+    @priority_teams = Team.where(slug: %w[river-plate boca-juniors boca]).order(:name)
 
-    if @competition.present?
+    if action_name == "groups" && @competition.present?
       @groups = Promiedos::GroupScraper.new.call(@competition.slug)
+    end
+
+    if @competition.present? && action_name == "index"
+      @competition_teams = (
+        @today_games.flat_map { |game| [game.home_team, game.away_team] } +
+        @upcoming_games.flat_map { |game| [game.home_team, game.away_team] } +
+        @recent_games.flat_map { |game| [game.home_team, game.away_team] }
+      ).uniq(&:id)
+      @seo = SeoMetadata.for_competition(@competition)
+    elsif action_name == "today"
+      @today_date = argentina_now
+      @seo = SeoMetadata.for_today(argentina_now)
     end
   end
 
@@ -141,5 +157,49 @@ class GamesController < ApplicationController
 
   def show
     @game = Game.includes(:home_team, :away_team, :competition).find_by!(slug: params[:id])
+    @ticket_link = FootballTickets::Link.for_game(@game)
+    @seo = SeoMetadata.for_game(game: @game, tickets_available: @ticket_link.present?)
+    @home_upcoming_games = @game.home_team.games
+      .includes(:home_team, :away_team, :competition)
+      .future
+      .where.not(id: @game.id)
+      .chronological
+      .limit(3)
+    @away_upcoming_games = @game.away_team.games
+      .includes(:home_team, :away_team, :competition)
+      .future
+      .where.not(id: @game.id)
+      .chronological
+      .limit(3)
+  end
+
+  def calendar
+    @game = Game.includes(:home_team, :away_team, :competition).find_by!(slug: params[:id])
+
+    send_data Calendar::IcsBuilder.for_game(@game),
+      type: "text/calendar; charset=utf-8",
+      disposition: "attachment",
+      filename: "#{@game.slug}.ics"
+  end
+
+  private
+
+  def redirect_legacy_competition_slug
+    slug = params[:competition].to_s
+    return unless Competition.legacy_slug?(slug)
+
+    canonical_slug = Competition.canonical_slug(slug)
+    target = case action_name
+    when "groups"
+      competition_groups_path(canonical_slug, locale: I18n.locale, q: params[:q])
+    when "upcoming_competition"
+      competition_upcoming_path(canonical_slug, locale: I18n.locale, q: params[:q])
+    when "today_competition"
+      competition_today_path(canonical_slug, locale: I18n.locale, q: params[:q])
+    else
+      competition_path(canonical_slug, locale: I18n.locale, q: params[:q], tab: params[:tab])
+    end
+
+    redirect_to target, status: :moved_permanently
   end
 end

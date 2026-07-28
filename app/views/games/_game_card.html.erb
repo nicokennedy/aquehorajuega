@@ -1,77 +1,61 @@
-<%= link_to game_path(game, locale: I18n.locale), class: "game-card" do %>
+<% source = local_assigns.fetch(:source, "listado") %>
+<% team_context = local_assigns[:team_context] %>
+<div class="game-card <%= 'priority-game-card' if [game.home_team.slug, game.away_team.slug].intersect?(%w[river-plate boca-juniors boca]) %>">
   <div class="game-card-top">
-    <span class="competition-name">
-      <%= game.competition&.name %>
-    </span>
-
-    <% if game.live? %>
-      <span class="live-pill">
-        EN VIVO <%= game.minute %>'
-      </span>
-    <% elsif game.finished? %>
-      <span class="finished-pill">
-        FINAL
-      </span>
-    <% end %>
+    <span class="competition-name"><%= game.competition&.name %></span>
+    <span class="status-pill status-<%= game.status %>"><%= game_status_label(game) %></span>
   </div>
 
   <div class="game-row">
     <div class="team-side">
-      <div class="team-name">
-        <% team = game.home_team %>
-
-        <% if team.promiedos_id.present? %>
-          <%= image_tag "https://api.promiedos.com.ar/images/team/#{team.promiedos_id}/1",
-            alt: team.name,
-            class: "team-logo" %>
-        <% elsif team.national_team? %>
-          <%= team.flag %>
+      <%= link_to team_path(game.home_team, locale: I18n.locale), class: "team-name" do %>
+        <% if game.home_team.promiedos_id.present? %>
+          <%= image_tag "https://api.promiedos.com.ar/images/team/#{game.home_team.promiedos_id}/1",
+            alt: game.home_team.name, class: "team-logo", loading: "lazy", width: 32, height: 32 %>
+        <% elsif game.home_team.national_team? %>
+          <%= game.home_team.flag %>
         <% else %>
-          <span class="club-ball" style="<%= team.badge_style %>"></span>
+          <span class="club-ball" style="<%= game.home_team.badge_style %>"></span>
         <% end %>
-
-        <%= team.name %>
-      </div>
+        <%= game.home_team.name %>
+      <% end %>
+      <% if team_context %>
+        <small><%= game.home_for?(team_context) ? "Local" : "Visitante" %></small>
+      <% end %>
     </div>
 
     <div class="game-center">
-      <div
-        class="match-date"
-        data-local-date="<%= game.starts_at.iso8601 %>"
-      >
-        <%= game.starts_at.strftime("%a %d/%m") %>
+      <div class="match-date" data-local-date="<%= game.starts_at.iso8601 %>">
+        <%= full_spanish_date(game.starts_at) %>
       </div>
-
       <% if game.live? || game.finished? %>
-        <div class="score">
-          <%= game.home_score %>-<%= game.away_score %>
-        </div>
+        <div class="score"><%= game.score_text == "vs" ? game_status_label(game) : game.score_text %></div>
       <% else %>
-        <div
-          class="match-time"
-          data-local-main-time="<%= game.starts_at.iso8601 %>"
-        >
-          <%= game.starts_at.in_time_zone("America/Argentina/Buenos_Aires").strftime("%H:%M") %>
-        </div>
+        <div class="match-time"><%= hora_argentina(game.starts_at) %> AR</div>
+        <small class="local-time-label" data-local-main-time="<%= game.starts_at.iso8601 %>"></small>
       <% end %>
     </div>
 
     <div class="team-side right">
-      <div class="team-name">
-        <% team = game.away_team %>
-
-        <% if team.promiedos_id.present? %>
-          <%= image_tag "https://api.promiedos.com.ar/images/team/#{team.promiedos_id}/1",
-            alt: team.name,
-            class: "team-logo" %>
-        <% elsif team.national_team? %>
-          <%= team.flag %>
+      <%= link_to team_path(game.away_team, locale: I18n.locale), class: "team-name" do %>
+        <% if game.away_team.promiedos_id.present? %>
+          <%= image_tag "https://api.promiedos.com.ar/images/team/#{game.away_team.promiedos_id}/1",
+            alt: game.away_team.name, class: "team-logo", loading: "lazy", width: 32, height: 32 %>
+        <% elsif game.away_team.national_team? %>
+          <%= game.away_team.flag %>
         <% else %>
-          <span class="club-ball" style="<%= team.badge_style %>"></span>
+          <span class="club-ball" style="<%= game.away_team.badge_style %>"></span>
         <% end %>
-
-        <%= team.name %>
-      </div>
+        <%= game.away_team.name %>
+      <% end %>
     </div>
   </div>
-<% end %>
+
+  <%= link_to "Ver partido", game_path(game, locale: I18n.locale),
+    class: "game-details-link",
+    data: {
+      analytics_event: "team_to_match",
+      analytics_source: source,
+      analytics_game: game.slug
+    } %>
+</div>

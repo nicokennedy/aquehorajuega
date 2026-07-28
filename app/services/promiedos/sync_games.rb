@@ -1,11 +1,12 @@
 module Promiedos
   class SyncGames
     def call
-      Game.where("starts_at < ?", 7.days.ago).delete_all
+      Game.where("starts_at < ?", Game::RETENTION_WINDOW.ago).delete_all
       leagues = scraper.call
+      processed_games = 0
 
       leagues.each do |league|
-        competition_slug = canonical_competition_slug(league["url_name"])
+        competition_slug = Competition.canonical_slug(league["url_name"])
         competition_name = canonical_competition_name(league["name"], competition_slug)
 
         competition = Competition.find_or_create_by!(slug: competition_slug) do |c|
@@ -20,10 +21,12 @@ module Promiedos
 
         league["games"].each do |game_data|
           sync_game(game_data, competition)
+          processed_games += 1
         end
       end
 
       Promiedos::GroupScraper.new.sync_team_ids!
+      processed_games
     end
 
     def scraper
@@ -31,19 +34,6 @@ module Promiedos
     end
 
     private
-
-    def canonical_competition_slug(slug)
-      case slug
-      when "fifa-world-cup"
-        "world-cup-2026"
-      when "conmebol-libertadores"
-        "libertadores"
-      when "conmebol-sudamericana"
-        "sudamericana"
-      else
-        slug
-      end
-    end
 
     def canonical_competition_name(name, slug)
       case slug
@@ -71,10 +61,6 @@ module Promiedos
       away_team.save!
 
       starts_at = parse_datetime(data["start_time"])
-
-      if running_on_heroku?
-        starts_at += 2.hours
-      end
       target_slug = build_slug(home_team.name, away_team.name, starts_at)
 
       game = Game.find_by(external_id: data["id"])
@@ -89,7 +75,7 @@ module Promiedos
         away_team: away_team,
         competition: competition,
         starts_at: starts_at,
-        slug: target_slug,
+        slug: game.persisted? ? game.slug : target_slug,
         status: map_status(data.dig("status", "enum")),
         home_score: scores[0],
         away_score: scores[1],
@@ -102,21 +88,8 @@ module Promiedos
     end
 
     def parse_datetime(value)
-      parsed = DateTime.strptime(value, "%d-%m-%Y %H:%M")
-
-      Time.new(
-        parsed.year,
-        parsed.month,
-        parsed.day,
-        parsed.hour,
-        parsed.minute,
-        0,
-        "-03:00"
-      )
-    end
-
-    def running_on_heroku?
-      ENV["DYNO"].present?
+      Time.find_zone!("America/Argentina/Buenos_Aires")
+        .strptime(value, "%d-%m-%Y %H:%M")
     end
 
     def map_status(enum)

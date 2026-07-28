@@ -1,10 +1,14 @@
 <% requested_tab = params[:tab].presence || "today" %>
 <% effective_tab = requested_tab == "today" && @today_games.blank? ? "upcoming" : requested_tab %>
+<% competition_landing = @competition.present? && action_name == "index" && params[:tab].blank? %>
 
 <%
   comp = @competition&.name
 
-  if @competition.present?
+  if @seo.present?
+    seo_title = @seo.title
+    seo_description = @seo.description
+  elsif @competition.present?
     if effective_tab == "upcoming"
       seo_title = t("app.seo.upcoming_competition", competition: comp)
       seo_description = t("app.seo.desc_upcoming_competition", competition: comp)
@@ -57,7 +61,7 @@
     <%= link_to all_label,      root_path(locale: I18n.locale, q: params[:q], tab: "today"),      class: ("active" unless @competition.present?) %>
 
     <% @competitions.each do |competition| %>
-      <%= link_to competition.name,        competition_path(competition.slug, locale: I18n.locale, q: params[:q], tab: "today"),        class: ("active" if @competition == competition) %>
+      <%= link_to competition.name, competition_path(competition.slug, locale: I18n.locale), class: ("active" if @competition == competition) %>
     <% end %>
   </nav>
 
@@ -75,8 +79,12 @@
     </div>
 
     <h1>
-      <% if @competition.present? %>
-        <% if effective_tab == "today" %>
+      <% if @seo.present? && !@competition.present? %>
+        <%= @seo.h1 %>
+      <% elsif @competition.present? %>
+        <% if competition_landing %>
+          <%= @seo.h1 %>
+        <% elsif effective_tab == "today" %>
           <%= t("app.h1.today_competition", competition: @competition.name) %>
         <% elsif effective_tab == "upcoming" %>
           <%= t("app.h1.upcoming_competition", competition: @competition.name) %>
@@ -89,7 +97,9 @@
         <%= t("app.title") %>
       <% end %>
     </h1>
-    <p class="subtitle"><%= t("app.subtitle") %></p>
+    <p class="subtitle">
+      <%= action_name == "today" ? full_spanish_date(@today_date) : t("app.subtitle") %>
+    </p>
 
     <%= form_with url: (@competition.present? ? competition_path(@competition.slug) : root_path),      method: :get,      local: true,      class: "search-form",      data: { controller: "search", search_target: "form" } do %>
 
@@ -125,6 +135,7 @@
     </section>
   <% end %>
 
+  <% unless competition_landing %>
   <div class="tabs">
     <%= link_to "#{t("app.today")} #{@today_games.count}",      (@competition.present? ?
         competition_today_path(@competition.slug, locale: I18n.locale, q: @query) :
@@ -140,11 +151,59 @@
           root_path(locale: I18n.locale, q: @query, tab: "groups")),        class: "tab #{'active' if effective_tab == 'groups'}" %>
     <% end %>
   </div>
+  <% end %>
 
     <% unless @competition.present? %>
     <% end %>
 
-  <% if effective_tab == "groups" %>
+  <% if competition_landing %>
+    <section class="competition-intro">
+      <p>Consultá los partidos confirmados, próximos encuentros y resultados recientes de <%= @competition.name %>.</p>
+    </section>
+
+    <section class="section">
+      <h2>Partidos de hoy de <%= @competition.name %></h2>
+      <% if @today_games.any? %>
+        <% @today_games.each do |game| %>
+          <%= render "game_card", game: game, source: "competition_today" %>
+        <% end %>
+      <% else %>
+        <p class="empty">No hay partidos confirmados para hoy en esta competición.</p>
+      <% end %>
+    </section>
+
+    <section class="section">
+      <h2>Próximos partidos</h2>
+      <% if @upcoming_games.any? %>
+        <% @upcoming_games.each do |game| %>
+          <%= render "game_card", game: game, source: "competition_upcoming" %>
+        <% end %>
+      <% else %>
+        <p class="empty">No hay próximos partidos confirmados.</p>
+      <% end %>
+    </section>
+
+    <section class="section">
+      <h2>Últimos resultados</h2>
+      <% if @recent_games.any? %>
+        <% @recent_games.each do |game| %>
+          <%= render "game_card", game: game, source: "competition_results" %>
+        <% end %>
+      <% else %>
+        <p class="empty">No hay resultados recientes disponibles.</p>
+      <% end %>
+    </section>
+
+    <% if @competition_teams.any? %>
+      <section class="seo-links">
+        <h2>Equipos de <%= @competition.name %></h2>
+        <% @competition_teams.sort_by(&:name).each do |team| %>
+          <%= link_to team.name, team_path(team, locale: I18n.locale),
+            data: { analytics_event: "competition_to_team", analytics_source: @competition.slug, analytics_team: team.slug } %>
+        <% end %>
+      </section>
+    <% end %>
+  <% elsif effective_tab == "groups" %>
     <section class="groups-section">
       <% group_tables = @groups.flat_map { |group_block| group_block["tables"] } %>
 
@@ -223,7 +282,14 @@
       <% games = effective_tab == "upcoming" ? @upcoming_games : @today_games %>
 
       <% if games.any? %>
-        <% games.group_by { |game| game.starts_at.in_time_zone("America/Argentina/Buenos_Aires").to_date }.each do |date, day_games| %>
+        <% grouped_games = action_name == "today" ? games.group_by(&:competition) : games.group_by { |game| game.starts_at.in_time_zone("America/Argentina/Buenos_Aires").to_date } %>
+        <% grouped_games.each do |group, day_games| %>
+          <% date = group unless action_name == "today" %>
+          <% if action_name == "today" %>
+            <div class="day-separator competition-separator">
+              <span><%= group&.name || "Otros partidos" %></span>
+            </div>
+          <% end %>
           <% if effective_tab == "upcoming" %>
             <div class="day-separator">
               <span><%= l(date, format: "%A %d/%m") %></span>
@@ -231,7 +297,7 @@
           <% end %>
 
           <% day_games.each do |game| %>
-            <%= render "game_card", game: game %>
+            <%= render "game_card", game: game, source: (action_name == "today" ? "today" : "upcoming") %>
           <% end %>
         <% end %>
       <% else %>
@@ -242,6 +308,7 @@
     </section>
   <% end %>
 
+  <% unless competition_landing %>
   <section class="seo-text">
     <h2><%= @competition.present? ? t("app.h1.fixture_section", competition: current_name) : t("app.title") %></h2>
 
@@ -255,6 +322,17 @@
       Esta página se actualiza para mostrar próximos partidos, partidos de hoy y resultados en vivo cuando estén disponibles.
     </p>
   </section>
+  <% end %>
+
+  <% if action_name == "today" && @priority_teams.any? %>
+    <section class="seo-links popular-teams-section">
+      <h2>Equipos prioritarios</h2>
+      <% @priority_teams.each do |team| %>
+        <%= link_to "Próximo partido de #{team.name}", team_path(team, locale: I18n.locale),
+          data: { analytics_event: "today_to_team", analytics_source: "today", analytics_team: team.slug } %>
+      <% end %>
+    </section>
+  <% end %>
 </div>
 
 <script>

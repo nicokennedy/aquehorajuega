@@ -7,9 +7,8 @@ module Internal
         return head :unauthorized
       end
 
-      Promiedos::SyncGames.new.call
-
-      render plain: "ok"
+      PromiedosSyncJob.perform_later("sync")
+      render plain: "queued", status: :accepted
     end
 
     def sync_live
@@ -17,9 +16,8 @@ module Internal
         return head :unauthorized
       end
 
-      Promiedos::LiveSyncGames.new.call
-
-      render plain: "ok"
+      PromiedosSyncJob.perform_later("sync_live")
+      render plain: "queued", status: :accepted
     end
 
     def full_sync
@@ -27,13 +25,8 @@ module Internal
         return head :unauthorized
       end
 
-      Thread.new do
-        ActiveRecord::Base.connection_pool.with_connection do
-          Promiedos::FullSyncGames.new.call
-        end
-      end
-
-      render plain: "ok"
+      PromiedosSyncJob.perform_later("full_sync")
+      render plain: "queued", status: :accepted
     end
   end
 end

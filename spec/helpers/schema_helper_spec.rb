@@ -125,15 +125,16 @@ RSpec.describe SchemaHelper, type: :helper do
   end
 
   describe "#sports_event_schema" do
-    it "incluye name, startDate, competitor y location correctamente" do
+    it "incluye name, startDate y competitor sin inventar location" do
       json = helper.sports_event_schema(game_at(month: 7, day: 15))
       parsed = JSON.parse(json)
 
       expect(parsed["@type"]).to eq("SportsEvent")
       expect(parsed["name"]).to eq("Brasil vs Argentina")
       expect(parsed["startDate"]).to be_present
-      expect(parsed["competitor"].map { |c| c["name"] }).to contain_exactly("Brasil", "Argentina")
-      expect(parsed["location"]).to be_present
+      expect(parsed.dig("homeTeam", "name")).to eq("Brasil")
+      expect(parsed.dig("awayTeam", "name")).to eq("Argentina")
+      expect(parsed).not_to have_key("location")
       expect(json).not_to match(/\b(January|February|March|April|May|June|July|August|September|October|November|December)\b/)
     end
 
@@ -141,6 +142,23 @@ RSpec.describe SchemaHelper, type: :helper do
       json = helper.sports_event_schema(game_at(comp: nil))
       parsed = JSON.parse(json)
 
+      expect(parsed).not_to have_key("organizer")
+    end
+
+    it "usa estados válidos y agrega URL para un partido persistido" do
+      home = Team.create!(name: "Local")
+      away = Team.create!(name: "Visitante")
+      game = Game.create!(
+        home_team: home,
+        away_team: away,
+        starts_at: ar.local(2026, 7, 15, 21, 30),
+        status: "finished"
+      )
+
+      parsed = JSON.parse(helper.sports_event_schema(game))
+
+      expect(parsed["eventStatus"]).to eq("https://schema.org/EventCompleted")
+      expect(parsed["url"]).to eq("https://aquehorajuega.pro/es/games/#{game.slug}")
       expect(parsed).not_to have_key("organizer")
     end
   end

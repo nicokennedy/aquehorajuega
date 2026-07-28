@@ -43,7 +43,7 @@ module SchemaHelper
     rival&.name.presence
   end
 
-  def sports_event_schema(game)
+  def sports_event_schema(game, ticket_link: nil)
     return "".html_safe if game.nil? || game.starts_at.nil?
 
     home = game.home_team&.name.presence || "Equipo local"
@@ -55,33 +55,42 @@ module SchemaHelper
       name: "#{home} vs #{away}",
       startDate: game.starts_at.iso8601,
       eventStatus: case game.status
-        when "live" then "https://schema.org/EventMovedOnline"
-        when "finished" then "https://schema.org/EventStatusOffline"
+        when "finished" then "https://schema.org/EventCompleted"
         else "https://schema.org/EventScheduled"
-        end,
+      end,
       eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
       sport: "Soccer",
-      location: {
-        "@type": "Place",
-        name: game.stadium.presence || game.city.presence || "Estadio por confirmar",
-        address: {
-          "@type": "PostalAddress",
-          addressLocality: game.city.presence || "Ciudad por confirmar"
-        }
-      },
-      competitor: [
-        { "@type": "SportsTeam", name: home },
-        { "@type": "SportsTeam", name: away }
-      ],
+      homeTeam: { "@type": "SportsTeam", name: home },
+      awayTeam: { "@type": "SportsTeam", name: away },
       description: "Horario de #{home} vs #{away} en tu país."
     }
 
-    # Solo incluimos organizer si la competencia está cargada: un name nil
-    # generaría schema inválido.
-    if game.competition&.name.present?
-      schema[:organizer] = {
-        "@type": "Organization",
-        name: game.competition.name
+    if game.to_param.present?
+      schema[:url] = game_url(
+        game,
+        host: Site::HOST,
+        protocol: "https",
+        locale: I18n.locale
+      )
+    end
+
+    if game.stadium.present? || game.city.present?
+      schema[:location] = {
+        "@type": "Place",
+        name: game.stadium.presence || game.city
+      }
+      if game.city.present?
+        schema[:location][:address] = {
+          "@type": "PostalAddress",
+          addressLocality: game.city
+        }
+      end
+    end
+
+    if ticket_link.present?
+      schema[:offers] = {
+        "@type": "Offer",
+        url: ticket_link.url
       }
     end
 

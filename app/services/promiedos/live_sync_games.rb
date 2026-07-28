@@ -2,9 +2,10 @@ module Promiedos
   class LiveSyncGames < SyncGames
     def call
       live_games = Game.where(status: "live").includes(:competition)
-      return if live_games.empty?
+      return 0 if live_games.empty?
 
       scraper = Promiedos::Scraper.new
+      processed_games = 0
 
       live_games.group_by(&:competition).each do |competition, games|
         league_id = competition.promiedos_id
@@ -28,11 +29,14 @@ module Promiedos
               away_score: scores[1],
               minute: game_data["game_time"]
             )
+            processed_games += 1
           end
         rescue => e
           Rails.logger.error("Promiedos::LiveSyncGames error #{league_id}/#{filter_key}: #{e.message}")
         end
       end
+
+      processed_games
     end
   end
 end

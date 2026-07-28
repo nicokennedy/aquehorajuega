@@ -1,0 +1,13 @@
+<% if ticket_link.present? %>
+  <div class="ticket-cta">
+    <p>Consultá opciones externas de entradas. La disponibilidad se confirma en el sitio de destino.</p>
+    <%= link_to ticket_link.label, ticket_link.url,
+      rel: "sponsored",
+      class: "button button-tickets",
+      data: {
+        analytics_event: "ticket_click",
+        analytics_source: local_assigns.fetch(:source, "partido"),
+        analytics_team: ticket_link.team.slug
+      } %>
+  </div>
+<% end %>

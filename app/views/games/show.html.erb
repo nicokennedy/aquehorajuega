@@ -1,167 +1,77 @@
-
-<% content_for :title do %>
-  <%= "A qué hora juega #{@game.home_team.name} vs #{@game.away_team.name} | #{@game.competition&.name}" %>
-<% end %>
-
-<% content_for :description do %>
-  <%= "#{@game.home_team.name} vs #{@game.away_team.name}: horario en tu país, hora en #{@game.city}, estadio #{@game.stadium} y countdown." %>
-<% end %>
+<% content_for :title, @seo.title %>
+<% content_for :description, @seo.description %>
 
 <script type="application/ld+json">
-  <%= sports_event_schema(@game) %>
+  <%= sports_event_schema(@game, ticket_link: @ticket_link) %>
 </script>
 <script type="application/ld+json">
   <%= breadcrumb_schema([
     { name: "Inicio", url: root_url(locale: I18n.locale) },
-    { name: @game.competition&.name, url: competition_url(@game.competition&.slug, locale: I18n.locale) },
+    (@game.competition ? { name: @game.competition.name, url: competition_url(@game.competition.slug, locale: I18n.locale) } : nil),
     { name: "#{@game.home_team.name} vs #{@game.away_team.name}", url: game_url(@game, locale: I18n.locale) }
-  ]) %>
+  ].compact) %>
 </script>
-
 
 <div class="page">
-  <%= link_to t("app.back"), root_path(locale: I18n.locale, competition: @game.competition&.slug, tab: "upcoming"), class: "back-link" %>
+  <%= link_to t("app.back"), @game.competition ? competition_path(@game.competition.slug, locale: I18n.locale) : root_path(locale: I18n.locale), class: "back-link" %>
 
-  <section class="share-match-page">
-    <p class="eyebrow"><%= @game.competition&.name %></p>
+  <article class="match-detail">
+    <header class="hero match-hero">
+      <p class="eyebrow"><%= @game.competition&.name || "Partido" %></p>
+      <h1><%= @seo.h1 %></h1>
+      <span class="status-pill status-<%= @game.status %>"><%= game_status_label(@game) %></span>
 
-    <div class="share-card">
-      <div class="share-card-header">
-        <span><%= @game.stage %></span>
-        <span data-local-date="<%= @game.starts_at.iso8601 %>"><%= @game.starts_at.strftime("%d/%m") %></span>
+      <div class="match-detail-teams">
+        <%= link_to @game.home_team.name, team_path(@game.home_team, locale: I18n.locale), class: "match-team-link" %>
+        <% if @game.live? || @game.finished? %>
+          <strong class="match-detail-score"><%= @game.score_text == "vs" ? game_status_label(@game) : @game.score_text %></strong>
+        <% else %>
+          <strong>vs</strong>
+        <% end %>
+        <%= link_to @game.away_team.name, team_path(@game.away_team, locale: I18n.locale), class: "match-team-link" %>
       </div>
 
-      <div class="share-teams">
-        <div class="share-team">
-          <span class="share-flag"><%= @game.home_team.flag %></span>
-          <strong><%= @game.home_team.name %></strong>
+      <dl class="match-facts">
+        <div><dt>Fecha</dt><dd><%= full_spanish_date(@game.starts_at) %></dd></div>
+        <div><dt>Hora Argentina</dt><dd><%= hora_argentina(@game.starts_at) %></dd></div>
+        <div>
+          <dt>Tu hora local</dt>
+          <dd data-local-main-time="<%= @game.starts_at.iso8601 %>"><%= hora_argentina(@game.starts_at) %></dd>
         </div>
+        <% if @game.competition %>
+          <div><dt>Competición</dt><dd><%= @game.competition.name %></dd></div>
+        <% end %>
+        <% if @game.stage.present? %>
+          <div><dt>Fase</dt><dd><%= @game.stage %></dd></div>
+        <% end %>
+        <% if @game.stadium.present? %>
+          <div><dt>Estadio</dt><dd><%= @game.stadium %></dd></div>
+        <% end %>
+        <% if @game.city.present? %>
+          <div><dt>Ciudad</dt><dd><%= @game.city %></dd></div>
+        <% end %>
+      </dl>
 
-        <div class="share-vs">
-          vs
-        </div>
-
-        <div class="share-team right">
-          <span class="share-flag"><%= @game.away_team.flag %></span>
-          <strong><%= @game.away_team.name %></strong>
-        </div>
+      <div class="hero-actions">
+        <%= link_to "Agregar partido al calendario",
+          calendar_game_path(@game, locale: I18n.locale, format: :ics),
+          class: "button button-secondary",
+          data: { analytics_event: "calendar_click", analytics_source: "game", analytics_game: @game.slug } %>
       </div>
+      <%= render "ticket_cta", ticket_link: @ticket_link, source: "game" %>
+    </header>
 
-      <% if @game.live? %>
-
-  <div class="live-match-center">
-    <div class="live-badge">
-      EN VIVO · <%= @game.minute %>'
-    </div>
-
-    <div class="live-score">
-      <%= @game.home_score %>-<%= @game.away_score %>
-    </div>
-        </div>
-
-      <% elsif @game.finished? %>
-
-        <div class="live-match-center">
-          <div class="finished-badge">
-            FINAL
-          </div>
-
-          <div class="live-score">
-            <%= @game.home_score %>-<%= @game.away_score %>
-          </div>
-        </div>
-
-      <% else %>
-
-        <div class="share-time">
-          <strong data-local-main-time="<%= @game.starts_at.iso8601 %>">
-            <%= @game.starts_at.in_time_zone("America/Argentina/Buenos_Aires").strftime("%H:%M") %>
-          </strong>
-
-          <span><%= t("app.your_time") %></span>
-        </div>
-
-        <div class="share-secondary-time">
-          <%= @game.starts_at.in_time_zone(@game.venue_time_zone).strftime("%H:%M") %>
-          en <%= @game.city %>
-        </div>
-
-        <div
-          class="share-countdown"
-          data-countdown="<%= @game.starts_at.iso8601 %>"
-        >
-          —
-        </div>
-
-      <% end %>
-    </div>
-
-
-    <div class="seo-links">
-      <h2>También puede interesarte</h2>
-
-      <%= link_to "Fixture completo de #{@game.competition.name}", competition_url_for(@game.competition) %>
-      <%= link_to "Próximos partidos de #{@game.home_team.name}", team_path(@game.home_team, locale: I18n.locale) %>
-      <%= link_to "Próximos partidos de #{@game.away_team.name}", team_path(@game.away_team, locale: I18n.locale) %>
-      <%= link_to "Partidos del #{@game.starts_at.to_date.strftime("%d/%m/%Y")}", date_games_path(@game.starts_at.to_date, locale: I18n.locale) %>
-    </div>
-  </section>
+    <% [[@game.home_team, @home_upcoming_games], [@game.away_team, @away_upcoming_games]].each do |team, games| %>
+      <section class="section">
+        <h2>Próximos partidos de <%= team.name %></h2>
+        <% if games.any? %>
+          <% games.each do |game| %>
+            <%= render "game_card", game: game, team_context: team, source: "game_related" %>
+          <% end %>
+        <% else %>
+          <p class="empty">No hay próximos partidos confirmados.</p>
+        <% end %>
+      </section>
+    <% end %>
+  </article>
 </div>
-
-<script>
-  function formatMainTime(date) {
-    return new Intl.DateTimeFormat("es-AR", {
-      timeZone: "America/Argentina/Buenos_Aires",      hour: "2-digit",      minute: "2-digit",      hour12: false
-    }).format(date);
-  }
-
-  function formatDate(date) {
-    return new Intl.DateTimeFormat("es-AR", {
-      timeZone: "America/Argentina/Buenos_Aires",      weekday: "short",      day: "2-digit",      month: "2-digit"
-    }).format(date);
-  }
-
-  function countdownText(date) {
-    const now = new Date();
-    const diff = date - now;
-
-    if (diff <= 0) return "Por empezar";
-
-    const minutes = Math.floor(diff / 60000);
-    const hours = Math.floor(minutes / 60);
-    const days = Math.floor(hours / 24);
-
-    if (days > 0) return `Faltan ${days}d ${hours % 24}h`;
-    if (hours > 0) return `Faltan ${hours}h ${minutes % 60}m`;
-    return `Faltan ${minutes}m`;
-  }
-
-  function shareMatch(button) {
-    const title = button.dataset.shareTitle;
-    const text = button.dataset.shareText;
-
-    if (navigator.share) {
-      navigator.share({
-        title: title,        text: text,        url: window.location.href
-      });
-    } else {
-      navigator.clipboard.writeText(window.location.href);
-      button.innerText = "Link copiado";
-    }
-  }
-
-  document.querySelectorAll("[data-local-main-time]").forEach((el) => {
-    const date = new Date(el.dataset.localMainTime);
-    el.innerText = formatMainTime(date);
-  });
-
-  document.querySelectorAll("[data-local-date]").forEach((el) => {
-    const date = new Date(el.dataset.localDate);
-    el.innerText = formatDate(date);
-  });
-
-  document.querySelectorAll("[data-countdown]").forEach((el) => {
-    const date = new Date(el.dataset.countdown);
-    el.innerText = countdownText(date);
-  });
-</script>

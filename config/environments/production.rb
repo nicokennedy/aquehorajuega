@@ -54,7 +54,7 @@ Rails.application.configure do
 
   # config/environments/production.rb
   config.action_controller.default_url_options = {
-    host: "www.aquehorajuega.pro",
+    host: "aquehorajuega.pro",
     protocol: "https"
   }
   # Log to STDOUT by default
@@ -73,8 +73,9 @@ Rails.application.configure do
   # Use a different cache store in production.
   # config.cache_store = :mem_cache_store
 
-  # Use a real queuing backend for Active Job (and separate queues per environment).
-  # config.active_job.queue_adapter = :resque
+  # Active Job separates sync work from HTTP requests. This adapter is intentionally
+  # temporary and non-durable; production must move to a persistent backend + worker.
+  config.active_job.queue_adapter = :async
   # config.active_job.queue_name_prefix = "aquehorajuega_production"
 
   config.action_mailer.perform_caching = false

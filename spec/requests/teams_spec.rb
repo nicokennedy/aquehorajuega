@@ -28,42 +28,10 @@ RSpec.describe "Teams", type: :request do
         )
       end
 
-      it "devuelve 200" do
+      it "redirige permanentemente a la página general" do
         get "/es/teams/brasil/today"
-        expect(response).to have_http_status(:ok)
-      end
-
-      it "incluye schema JSON-LD (application/ld+json)" do
-        get "/es/teams/brasil/today"
-        expect(response.body).to include("application/ld+json")
-      end
-
-      it "incluye el SportsEvent schema con datos del partido" do
-        get "/es/teams/brasil/today"
-        expect(response.body).to include("SportsEvent")
-        expect(response.body).to include("Maracaná")
-      end
-
-      it "NO contiene 'Translation missing'" do
-        get "/es/teams/brasil/today"
-        expect(response.body).not_to match(/Translation missing/i)
-      end
-
-      it "NO contiene meses en inglés" do
-        get "/es/teams/brasil/today"
-        expect(response.body).not_to match(ENGLISH_MONTHS)
-      end
-
-      it "tiene un <title> no vacío" do
-        get "/es/teams/brasil/today"
-        expect(title_text(response.body)).to be_present
-      end
-
-      it "tiene una meta description no vacía ni con Translation missing" do
-        get "/es/teams/brasil/today"
-        desc = response.body[/<meta name="description" content="(.*?)">/, 1].to_s
-        expect(desc).to be_present
-        expect(desc).not_to match(/Translation missing/i)
+        expect(response).to have_http_status(:moved_permanently)
+        expect(response.location).to eq("http://www.example.com/es/teams/brasil")
       end
     end
 
@@ -78,32 +46,18 @@ RSpec.describe "Teams", type: :request do
         )
       end
 
-      it "devuelve 200 y no explota" do
+      it "redirige permanentemente" do
         get "/es/teams/brasil/today"
-        expect(response).to have_http_status(:ok)
-      end
-
-      it "muestra la fecha en español, nunca en inglés" do
-        get "/es/teams/brasil/today"
-        expect(response.body).not_to match(ENGLISH_MONTHS)
-        expect(response.body).not_to match(/Translation missing/i)
-      end
-
-      it "tiene un <title> no vacío" do
-        get "/es/teams/brasil/today"
-        expect(title_text(response.body)).to be_present
+        expect(response).to have_http_status(:moved_permanently)
       end
     end
 
     context "cuando Brasil no tiene ningún partido" do
       before { brasil }
 
-      it "devuelve 200 con title y description válidos" do
+      it "redirige permanentemente" do
         get "/es/teams/brasil/today"
-        expect(response).to have_http_status(:ok)
-        expect(title_text(response.body)).to be_present
-        expect(response.body).not_to match(/Translation missing/i)
-        expect(response.body).not_to match(ENGLISH_MONTHS)
+        expect(response).to have_http_status(:moved_permanently)
       end
     end
   end
@@ -115,7 +69,7 @@ RSpec.describe "Teams", type: :request do
       expect(paises_bajos.to_param).to eq("paises-bajos")
     end
 
-    it "GET /es/teams/paises-bajos/today devuelve 200 (no 404)" do
+    it "GET /es/teams/paises-bajos/today redirige al slug correcto" do
       Game.create!(
         home_team: paises_bajos,
         away_team: Team.create!(name: "Suecia"),
@@ -125,8 +79,8 @@ RSpec.describe "Teams", type: :request do
       )
 
       get "/es/teams/paises-bajos/today"
-      expect(response).to have_http_status(:ok)
-      expect(response.body).to include("Países Bajos")
+      expect(response).to have_http_status(:moved_permanently)
+      expect(response.location).to end_with("/es/teams/paises-bajos")
     end
 
     it "GET /es/teams/paises-bajos (show) devuelve 200 (no 404)" do
